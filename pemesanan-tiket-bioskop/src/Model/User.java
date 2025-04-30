@@ -6,6 +6,13 @@ public class User {
     private String password;
     private String role;
 
-    // constructor
-    // getter-setter
+    public User() {}
+
+    public User(int idUser, String username, String password, String role) {
+        this.idUser = idUser;
+        this.username = username;
+        this.password = password;
+        this.role = role;
+    }
+
 }

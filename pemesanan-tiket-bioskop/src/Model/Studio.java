@@ -5,6 +5,13 @@ public class Studio {
     private String namaStudio;
     private int kapasitas;
 
-    // constructor
-    // getter-setter
+    public Studio() {}
+
+    public Studio(int idStudio, String namaStudio, int kapasitas) {
+        this.idStudio = idStudio;
+        this.namaStudio = namaStudio;
+        this.kapasitas = kapasitas;
+    }
+
+    // Getter-setter
 }
