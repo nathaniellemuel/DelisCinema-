@@ -39,4 +39,23 @@ public class seeder {
             return password; // fallback
         }
     }
+
+    public static void seedStudio() {
+        try (Connection conn = DBUtil.getConnection()) {
+            String sql = "INSERT INTO studio (nama_studio, kapasitas) VALUES (?, ?)";
+            PreparedStatement stmt = conn.prepareStatement(sql);
+
+            for (int i = 1; i <= 4; i++) {
+                stmt.setString(1, "Studio " + i);
+                stmt.setInt(2, 40);
+                stmt.addBatch();
+            }
+
+            stmt.executeBatch();
+            System.out.println("Seeder studio berhasil.");
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
 }

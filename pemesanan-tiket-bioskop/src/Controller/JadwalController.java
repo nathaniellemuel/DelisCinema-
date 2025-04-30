@@ -10,24 +10,30 @@ import java.util.List;
 
 public class JadwalController {
 
-    public List<Jadwal> getAllJadwal() {
-        List<Jadwal> list = new ArrayList<>();
-        String sql = "SELECT * FROM jadwal"; //get data
+    public List<String> getAllJadwalWithDetail() {
+        List<String> list = new ArrayList<>();
+        String sql = """
+        SELECT j.id_jadwal, f.judul, s.nama_studio, j.tanggal, j.jam, j.harga
+        FROM jadwal j
+        JOIN film f ON j.id_film = f.id_film
+        JOIN studio s ON j.id_studio = s.id_studio
+        """;
 
         try (Connection conn = DBUtil.getConnection();
              Statement stmt = conn.createStatement();
              ResultSet rs = stmt.executeQuery(sql)) {
 
             while (rs.next()) {
-                Jadwal jadwal = new Jadwal(
+                String baris = String.format(
+                        "Jadwal #%d | Film: %s | Studio: %s | Tanggal: %s | Jam: %s | Harga: %d",
                         rs.getInt("id_jadwal"),
-                        rs.getInt("id_film"),
-                        rs.getInt("id_studio"),
-                        rs.getDate("tanggal").toLocalDate(),
-                        rs.getTime("jam").toLocalTime(),
+                        rs.getString("judul"),
+                        rs.getString("nama_studio"),
+                        rs.getDate("tanggal"),
+                        rs.getTime("jam"),
                         rs.getInt("harga")
                 );
-                list.add(jadwal);
+                list.add(baris);
             }
 
         } catch (SQLException e) {
@@ -36,6 +42,7 @@ public class JadwalController {
 
         return list;
     }
+
 
     public boolean tambahJadwal(Jadwal jadwal) {
         String sql = "INSERT INTO jadwal (id_film, id_studio, tanggal, jam, harga) VALUES (?, ?, ?, ?, ?)";
