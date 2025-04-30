@@ -12,7 +12,7 @@ public class JadwalController {
 
     public List<Jadwal> getAllJadwal() {
         List<Jadwal> list = new ArrayList<>();
-        String sql = "SELECT * FROM jadwal";
+        String sql = "SELECT * FROM jadwal"; //get data
 
         try (Connection conn = DBUtil.getConnection();
              Statement stmt = conn.createStatement();
