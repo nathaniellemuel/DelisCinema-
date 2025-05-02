@@ -15,9 +15,15 @@ public class LoginFrame extends JFrame {
     private JButton btnSubmit;
     private UserController userController;
 
+
+
+
     public LoginFrame() {
         userController = new UserController();
         setTitle("Login - Delis Cinema");
+        ImageIcon appIcon = new ImageIcon(getClass().getResource("/Desktop.png"));
+        setIconImage(appIcon.getImage());
+        setIconImage(appIcon.getImage());
         setSize(800, 450);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setLocationRelativeTo(null);
@@ -37,13 +43,15 @@ public class LoginFrame extends JFrame {
 
         logo.setAlignmentX(Component.CENTER_ALIGNMENT);
 
+
+
         JLabel welcomeText = new JLabel("SELAMAT DATANG KEMBALI!", SwingConstants.CENTER);
-        welcomeText.setFont(new Font("SansSerif", Font.BOLD, 14));
+        welcomeText.setFont(new Font("Poppins", Font.BOLD, 14));
         welcomeText.setForeground(Color.WHITE);
         welcomeText.setAlignmentX(Component.CENTER_ALIGNMENT);
 
         JLabel subText = new JLabel("<html><center>Silahkan login terlebih dahulu<br/>untuk verifikasi diri anda.</center></html>", SwingConstants.CENTER);
-        subText.setFont(new Font("SansSerif", Font.PLAIN, 12));
+        subText.setFont(new Font("Poppins", Font.PLAIN, 12));
         subText.setForeground(Color.WHITE);
         subText.setAlignmentX(Component.CENTER_ALIGNMENT);
 
@@ -62,7 +70,7 @@ public class LoginFrame extends JFrame {
         GridBagConstraints gbc = new GridBagConstraints();
 
         JLabel lblLogin = new JLabel("LOGIN");
-        lblLogin.setFont(new Font("SansSerif", Font.BOLD, 22));
+        lblLogin.setFont(new Font("Poppins", Font.BOLD, 22));
         gbc.gridx = 0;
         gbc.gridy = 0;
         gbc.gridwidth = 2;
@@ -78,7 +86,7 @@ public class LoginFrame extends JFrame {
         rightPanel.add(new JLabel("Username"), gbc);
         gbc.gridy = 2;
         tfUsername = new JTextField();
-        tfUsername.setPreferredSize(new Dimension(250, 30));
+        tfUsername.setPreferredSize(new Dimension(450, 30));
         tfUsername.setBackground(new Color(230, 230, 230));
         rightPanel.add(tfUsername, gbc);
 
@@ -87,7 +95,7 @@ public class LoginFrame extends JFrame {
         rightPanel.add(new JLabel("Password"), gbc);
         gbc.gridy = 4;
         pfPassword = new JPasswordField();
-        pfPassword.setPreferredSize(new Dimension(250, 30));
+        pfPassword.setPreferredSize(new Dimension(450, 30));
         pfPassword.setBackground(new Color(230, 230, 230));
         rightPanel.add(pfPassword, gbc);
 
@@ -96,7 +104,7 @@ public class LoginFrame extends JFrame {
         btnSubmit = new JButton("SUBMIT");
         btnSubmit.setBackground(merahDelis);
         btnSubmit.setForeground(Color.WHITE);
-        btnSubmit.setPreferredSize(new Dimension(250, 35));
+        btnSubmit.setPreferredSize(new Dimension(450, 35));
         btnSubmit.setFocusPainted(false);
         rightPanel.add(btnSubmit, gbc);
 
@@ -118,7 +126,7 @@ public class LoginFrame extends JFrame {
                 dispose();
 
                 if (user.getRole().equals("admin")) {
-                    // new AdminDashboard(user).setVisible(true);
+                     new AdminDashboard(user).setVisible(true);
                 } else if (user.getRole().equals("staff")) {
                     // new StaffDashboard(user).setVisible(true);
                 }
