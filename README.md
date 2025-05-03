@@ -30,24 +30,24 @@ Program ini dikembangkan menggunakan pola arsitektur MVC (Model-View-Controller)
   NIM: -  
   Email: [example@gmail.com](mailto:example@gmail.com)
 
-- **Anggota 1:** -  
-  NIM: Nathaniel Lemuel Chandra  
+- **Anggota 1:** Nathaniel Lemuel Chandra  
+  NIM:   
   Email: [example@gmail.com](mailto:example@gmail.com)
 
-- **Anggota 2:** -  
-  NIM: Nicholas Romanov  
+- **Anggota 2:** Nicholas Romanov  
+  NIM:   
   Email: [example@gmail.com](mailto:example@gmail.com)
 
-- **Anggota 3:** -  
+- **Anggota 3:** Mochamad Rico Dwi Anggoro  
   NIM: Mochamad Rico Dwi Anggoro  
   Email: [example@gmail.com](mailto:example@gmail.com)
 
-- **Anggota 4:** -  
+- **Anggota 4:** M. Arief Ardiansyah Sirun   
     NIM: M. Arief Ardiansyah Sirun  
     Email: [example@gmail.com](mailto:example@gmail.com)
-- **Anggota 5:** -  
-  NIM: Fauzan Akbar Wijaya  
-  Email: [example@gmail.com](mailto:example@gmail.com)
+- **Anggota 5:** Fauzan Akbar Wijaya   
+  NIM:  
+  Email: [15240092@bsi.ac.id](mailto:15240092@bsi.ac.id)
 
 ---
 
@@ -73,6 +73,6 @@ Sebelum menjalankan program, pastikan anda sudah menginstal library berikut:
 
 ## Masalah atau Pertanyaan?
 Jika anda mengalami masalah atau membutuhkan bantuan lebih lanjut, silakan hubungi email berikut:  
-[example@gmail.com](mailto:example@gmail.com)
+[neacakbar@gmail.com](mailto:neacakbar@gmail.com)
 
 ---
