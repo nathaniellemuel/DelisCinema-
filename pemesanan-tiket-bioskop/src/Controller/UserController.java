@@ -8,6 +8,10 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 
 public class UserController {
+    public static User getCurrentUser() {
+        return null;
+    }
+
     // Login function
     public User login(String username, String passwordHashed) {
         String sql = "SELECT * FROM user WHERE username = ? AND password = ?";

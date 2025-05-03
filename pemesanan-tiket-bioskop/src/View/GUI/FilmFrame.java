@@ -163,7 +163,7 @@ public class FilmFrame extends JFrame {
 
         btnJadwal.addActionListener(e -> {
             dispose();
-            // new JadwalFrame(currentUser).setVisible(true);
+             new JadwalFrame(currentUser).setVisible(true);
         });
 
         btnLogout.addActionListener(e -> {
