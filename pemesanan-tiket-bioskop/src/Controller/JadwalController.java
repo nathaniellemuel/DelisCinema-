@@ -45,7 +45,6 @@ public class JadwalController {
         return list;
     }
 
-
     public boolean tambahJadwal(Jadwal jadwal) {
         String sql = "INSERT INTO jadwal (id_film, id_studio, tanggal, jam, harga) VALUES (?, ?, ?, ?, ?)";
 
@@ -140,9 +139,143 @@ public class JadwalController {
         return grouped;
     }
 
+    public List<Jadwal> getJadwalByFilmId(int filmId) {
+        List<Jadwal> list = new ArrayList<>();
+        String sql = """
+        SELECT j.*, s.nama_studio, s.kapasitas
+        FROM jadwal j
+        JOIN studio s ON j.id_studio = s.id_studio
+        WHERE j.id_film = ?
+    """;
 
+        try (Connection conn = DBUtil.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
 
+            stmt.setInt(1, filmId);
+            ResultSet rs = stmt.executeQuery();
 
+            while (rs.next()) {
+                Jadwal jadwal = new Jadwal(
+                        rs.getInt("id_jadwal"),
+                        rs.getInt("id_film"),
+                        rs.getInt("id_studio"),
+                        rs.getDate("tanggal").toLocalDate(),
+                        rs.getTime("jam").toLocalTime(),
+                        rs.getInt("harga")
+                );
+
+                Studio studio = new Studio(
+                        rs.getInt("id_studio"),
+                        rs.getString("nama_studio"),
+                        rs.getInt("kapasitas")
+                );
+
+                jadwal.setStudio(studio);
+                list.add(jadwal);
+            }
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+
+        return list;
+    }
+
+    public List<Studio> getStudiosBelumAdaJadwal() {
+        List<Studio> list = new ArrayList<>();
+        String sql = """
+    SELECT * FROM studio
+    WHERE id_studio NOT IN (
+        SELECT DISTINCT j.id_studio
+        FROM jadwal j
+        JOIN film f ON j.id_film = f.id_film
+        WHERE f.status = 'tayang'
+    )
+    """;
+
+        try (Connection conn = DBUtil.getConnection();
+             Statement stmt = conn.createStatement();
+             ResultSet rs = stmt.executeQuery(sql)) {
+
+            while (rs.next()) {
+                Studio studio = new Studio(
+                        rs.getInt("id_studio"),
+                        rs.getString("nama_studio"),
+                        rs.getInt("kapasitas")
+                );
+                list.add(studio);
+            }
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+
+        return list;
+    }
+
+    public boolean hapusSemuaJadwalFilmDiStudio(int idFilm, int idStudio) {
+        String sql = "DELETE FROM jadwal WHERE id_film = ? AND id_studio = ?";
+
+        try (Connection conn = DBUtil.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+
+            stmt.setInt(1, idFilm);
+            stmt.setInt(2, idStudio);
+            return stmt.executeUpdate() > 0;
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
+
+    public boolean hapusJadwalPerJam(int idJadwal) {
+        String sql = "DELETE FROM jadwal WHERE id_jadwal = ?";
+
+        try (Connection conn = DBUtil.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+
+            stmt.setInt(1, idJadwal);
+            return stmt.executeUpdate() > 0;
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
+
+    public boolean updateJadwalJam(int idJadwal, LocalTime newJam) {
+        String sql = "UPDATE jadwal SET jam = ? WHERE id_jadwal = ?";
+
+        try (Connection conn = DBUtil.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+
+            stmt.setTime(1, Time.valueOf(newJam));
+            stmt.setInt(2, idJadwal);
+            return stmt.executeUpdate() > 0;
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
+
+    public boolean updateJadwalStudioHarga(int idJadwal, int newStudioId, int newHarga) {
+        String sql = "UPDATE jadwal SET id_studio = ?, harga = ? WHERE id_jadwal = ?";
+
+        try (Connection conn = DBUtil.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+
+            stmt.setInt(1, newStudioId);
+            stmt.setInt(2, newHarga);
+            stmt.setInt(3, idJadwal);
+            return stmt.executeUpdate() > 0;
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
 
 
 }

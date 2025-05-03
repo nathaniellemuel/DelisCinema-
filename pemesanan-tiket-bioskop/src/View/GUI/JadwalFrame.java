@@ -4,13 +4,18 @@ import Controller.FilmController;
 import Controller.UserController;
 import Controller.JadwalController;
 import Model.Film;
+import Model.Studio;
 import Model.User;
 import Model.Jadwal;
 
 import javax.swing.*;
 import java.awt.*;
+import java.time.LocalDate;
+import java.time.LocalTime;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 public class JadwalFrame extends JFrame {
     private FilmController filmController;
@@ -79,13 +84,137 @@ public class JadwalFrame extends JFrame {
 
         btnTambah.addActionListener(e -> {
             JDialog dialog = new JDialog(this, "Tambah Tayangan", true);
-            dialog.setSize(400, 300);
+            dialog.setSize(400, 400);
             dialog.setLocationRelativeTo(this);
             dialog.setLayout(new GridBagLayout());
+            GridBagConstraints gbc = new GridBagConstraints();
+            gbc.insets = new Insets(5, 5, 5, 5);
+            gbc.fill = GridBagConstraints.HORIZONTAL;
 
+            // Dropdown film
+            JLabel lblFilm = new JLabel("Pilih Film:");
+            JComboBox<Film> cbFilm = new JComboBox<>();
+            for (Film f : filmController.getFilmTayang()) {
+                cbFilm.addItem(f);
+            }
+
+            // Components lainnya
+            JLabel lblStudio = new JLabel("Studio:");
+            JComboBox<Studio> cbStudio = new JComboBox<>();
+
+            JLabel lblTanggal = new JLabel("Tanggal:");
+            JSpinner spTanggal = new JSpinner(new SpinnerDateModel());
+            JSpinner.DateEditor de = new JSpinner.DateEditor(spTanggal, "yyyy-MM-dd");
+            spTanggal.setEditor(de);
+
+            JLabel lblJam = new JLabel("Jam:");
+            JSpinner spJam = new JSpinner(new SpinnerDateModel());
+            spJam.setEditor(new JSpinner.DateEditor(spJam, "HH:mm"));
+
+            JLabel lblHarga = new JLabel("Harga:");
+            JTextField tfHarga = new JTextField();
+
+            JButton btnSimpan = new JButton("Simpan");
+
+            // Dynamic logic saat film dipilih
+            cbFilm.addActionListener(filmEvent -> {
+                Film selected = (Film) cbFilm.getSelectedItem();
+                List<Jadwal> existing = new JadwalController().getJadwalByFilmId(selected.getIdFilm());
+                cbStudio.removeAllItems();
+
+                JadwalController jadwalController = new JadwalController();
+                List<Studio> studiosKosong = jadwalController.getStudiosBelumAdaJadwal();
+
+                if (!existing.isEmpty()) {
+                    if (!studiosKosong.isEmpty()) {
+                        // Film sudah punya jadwal → bisa tambah ke studio lain yang belum terisi
+                        // TAPI juga bisa tambah jam di studio yang sudah pernah dipakai
+                        Set<Integer> studioIdsSudahDipakai = new HashSet<>();
+                        for (Jadwal j : existing) {
+                            Studio s = j.getStudio();
+                            if (!studioIdsSudahDipakai.contains(s.getIdStudio())) {
+                                cbStudio.addItem(s);
+                                studioIdsSudahDipakai.add(s.getIdStudio());
+                            }
+                        }
+
+                        // Tambahkan juga studio kosong
+                        for (Studio s : studiosKosong) {
+                            cbStudio.addItem(s);
+                        }
+
+                        cbStudio.setEnabled(true);
+                        spTanggal.setEnabled(false); // Tanggal dikunci
+                        tfHarga.setEnabled(true);
+                        Jadwal ref = existing.get(0);
+                        spTanggal.setValue(java.sql.Date.valueOf(ref.getTanggal()));
+                        tfHarga.setText(String.valueOf(ref.getHarga()));
+                    } else {
+                        // Film sudah punya jadwal dan semua studio sudah terisi → hanya bisa tambah jam di studio yang sama
+                        Set<Integer> studioIdsSudahDipakai = new HashSet<>();
+                        for (Jadwal j : existing) {
+                            Studio s = j.getStudio();
+                            if (!studioIdsSudahDipakai.contains(s.getIdStudio())) {
+                                cbStudio.addItem(s);
+                                studioIdsSudahDipakai.add(s.getIdStudio());
+                            }
+                        }
+
+                        cbStudio.setEnabled(true);
+                        spTanggal.setValue(java.sql.Date.valueOf(existing.get(0).getTanggal()));
+                        spTanggal.setEnabled(false);
+                        tfHarga.setText(String.valueOf(existing.get(0).getHarga()));
+                        tfHarga.setEnabled(false);
+                    }
+                } else {
+                    // Film belum punya jadwal sama sekali
+                    for (Studio s : studiosKosong) {
+                        cbStudio.addItem(s);
+                    }
+                    cbStudio.setEnabled(true);
+                    spTanggal.setEnabled(true);
+                    tfHarga.setEnabled(true);
+                }
+
+            });
+
+
+
+            // Layouting
+            gbc.gridx = 0; gbc.gridy = 0; dialog.add(lblFilm, gbc);
+            gbc.gridx = 1; dialog.add(cbFilm, gbc);
+            gbc.gridx = 0; gbc.gridy++; dialog.add(lblStudio, gbc);
+            gbc.gridx = 1; dialog.add(cbStudio, gbc);
+            gbc.gridx = 0; gbc.gridy++; dialog.add(lblTanggal, gbc);
+            gbc.gridx = 1; dialog.add(spTanggal, gbc);
+            gbc.gridx = 0; gbc.gridy++; dialog.add(lblJam, gbc);
+            gbc.gridx = 1; dialog.add(spJam, gbc);
+            gbc.gridx = 0; gbc.gridy++; dialog.add(lblHarga, gbc);
+            gbc.gridx = 1; dialog.add(tfHarga, gbc);
+            gbc.gridwidth = 2; gbc.gridx = 0; gbc.gridy++; dialog.add(btnSimpan, gbc);
+
+            btnSimpan.addActionListener(saveEvent -> {
+                // Validasi dan simpan ke DB
+                Film selectedFilm = (Film) cbFilm.getSelectedItem();
+                Studio selectedStudio = (Studio) cbStudio.getSelectedItem();
+                LocalDate tanggal = ((java.util.Date) spTanggal.getValue()).toInstant().atZone(java.time.ZoneId.systemDefault()).toLocalDate();
+                LocalTime jam = ((java.util.Date) spJam.getValue()).toInstant().atZone(java.time.ZoneId.systemDefault()).toLocalTime();
+                int harga = Integer.parseInt(tfHarga.getText());
+
+                Jadwal newJadwal = new Jadwal(0, selectedFilm.getIdFilm(), selectedStudio.getIdStudio(), tanggal, jam, harga);
+                if (new JadwalController().tambahJadwal(newJadwal)) {
+                    JOptionPane.showMessageDialog(dialog, "Berhasil tambah jadwal!");
+                    dialog.dispose();
+                    dispose(); // Refresh frame
+                    new JadwalFrame(currentUser).setVisible(true);
+                } else {
+                    JOptionPane.showMessageDialog(dialog, "Gagal tambah jadwal!");
+                }
+            });
 
             dialog.setVisible(true);
         });
+
 
         JPanel panelList = new JPanel(); //
         panelList.setLayout(new BoxLayout(panelList, BoxLayout.Y_AXIS));
@@ -188,15 +317,82 @@ public class JadwalFrame extends JFrame {
         jamPanel.setLayout(new FlowLayout(FlowLayout.LEFT, 15, 5));
         jamPanel.setOpaque(false);
 
+
         for (Jadwal jadwal : group) {
             String jamStr = jadwal.getJam().toString().substring(0, 5);
-            JLabel lblJam = new JLabel(jamStr);
-            lblJam.setBorder(BorderFactory.createLineBorder(Color.DARK_GRAY));
-            lblJam.setFont(new Font("Poppins", Font.PLAIN, 14));
-            lblJam.setHorizontalAlignment(SwingConstants.CENTER);
-            lblJam.setPreferredSize(new Dimension(60, 25));
-            jamPanel.add(lblJam);
+            JButton btnJam = new JButton(jamStr);
+            btnJam.setFont(new Font("Poppins", Font.PLAIN, 14));
+            btnJam.setPreferredSize(new Dimension(60, 25));
+            btnJam.setBackground(Color.WHITE);
+            btnJam.setBorder(BorderFactory.createLineBorder(Color.DARK_GRAY));
+            btnJam.setToolTipText("Klik untuk mengedit atau hapus jam tayang ini");
+
+            // Menambahkan aksi saat tombol jam diklik
+            btnJam.addActionListener(e -> {
+                JPopupMenu popupMenu = new JPopupMenu();
+
+                // Opsi Edit Jam
+                JMenuItem editItem = new JMenuItem("Edit Jam");
+                editItem.addActionListener(editEvent -> {
+                    JDialog editDialog = new JDialog(this, "Edit Jam Tayang", true);
+                    editDialog.setSize(300, 200);
+                    editDialog.setLocationRelativeTo(this);
+
+                    // Komponen untuk memilih jam baru
+                    JSpinner spEditJam = new JSpinner(new SpinnerDateModel());
+                    spEditJam.setEditor(new JSpinner.DateEditor(spEditJam, "HH:mm"));
+
+                    JPanel editPanel = new JPanel(new FlowLayout());
+                    editPanel.add(new JLabel("Pilih Jam:"));
+                    editPanel.add(spEditJam);
+
+                    int result = JOptionPane.showConfirmDialog(null, editPanel, "Edit Jam Tayang", JOptionPane.OK_CANCEL_OPTION);
+                    if (result == JOptionPane.OK_OPTION) {
+                        LocalTime newJam = ((java.util.Date) spEditJam.getValue()).toInstant().atZone(java.time.ZoneId.systemDefault()).toLocalTime();
+                        // Update jam tayang ke database
+                        boolean success = new JadwalController().updateJadwalJam(jadwal.getIdJadwal(), newJam);
+                        if (success) {
+                            JOptionPane.showMessageDialog(null, "Jam tayang berhasil diupdate.");
+                            dispose();
+                            new JadwalFrame(currentUser).setVisible(true); // Refresh tampilan
+                        } else {
+                            JOptionPane.showMessageDialog(null, "Gagal update jam tayang.");
+                        }
+                    }
+                });
+
+                // Opsi Hapus Jam
+                JMenuItem deleteItem = new JMenuItem("Hapus Jam");
+                deleteItem.addActionListener(deleteEvent -> {
+                    int confirm = JOptionPane.showConfirmDialog(null,
+                            "Yakin ingin menghapus jadwal jam " + jamStr + "?",
+                            "Konfirmasi Hapus", JOptionPane.YES_NO_OPTION);
+
+                    if (confirm == JOptionPane.YES_OPTION) {
+                        boolean success = new JadwalController().hapusJadwalPerJam(jadwal.getIdJadwal());
+                        if (success) {
+                            JOptionPane.showMessageDialog(null, "Jam tayang berhasil dihapus.");
+                            dispose();
+                            new JadwalFrame(currentUser).setVisible(true); // Refresh tampilan
+                        } else {
+                            JOptionPane.showMessageDialog(null, "Gagal menghapus jam tayang.");
+                        }
+                    }
+                });
+
+                // Menambahkan item ke popup menu
+                popupMenu.add(editItem);
+                popupMenu.add(deleteItem);
+
+                // Menampilkan popup menu di lokasi tombol yang diklik
+                popupMenu.show(btnJam, 0, btnJam.getHeight());
+            });
+
+            jamPanel.add(btnJam);
         }
+
+
+
 
         // Menambahkan label judul dan jam tayang ke dalam panel kiri
         left.add(lblJudul);
@@ -226,6 +422,54 @@ public class JadwalFrame extends JFrame {
         btnEdit.setBorderPainted(false);
         btnEdit.setEnabled(true);
         btnEdit.setForeground(Color.BLACK);
+        btnEdit.addActionListener(e -> {
+            JDialog editDialog = new JDialog(this, "Edit Studio dan Harga", true);
+            editDialog.setSize(400, 300);
+            editDialog.setLocationRelativeTo(this);
+            editDialog.setLayout(new GridBagLayout());
+
+            GridBagConstraints gbc = new GridBagConstraints();
+            gbc.insets = new Insets(5, 5, 5, 5);
+            gbc.fill = GridBagConstraints.HORIZONTAL;
+
+            // Edit studio dropdown
+            JLabel lblEditStudio = new JLabel("Pilih Studio:");
+            JComboBox<Studio> cbEditStudio = new JComboBox<>();
+            JadwalController jadwalController = new JadwalController();
+            for (Studio studio : jadwalController.getStudiosBelumAdaJadwal()) {
+                cbEditStudio.addItem(studio);
+            }
+
+            // Edit price field
+            JLabel lblEditHarga = new JLabel("Harga:");
+            JTextField tfEditHarga = new JTextField(String.valueOf(sample.getHarga()));
+
+            // Add components to dialog
+            gbc.gridx = 0; gbc.gridy = 0; editDialog.add(lblEditStudio, gbc);
+            gbc.gridx = 1; editDialog.add(cbEditStudio, gbc);
+            gbc.gridx = 0; gbc.gridy++; editDialog.add(lblEditHarga, gbc);
+            gbc.gridx = 1; editDialog.add(tfEditHarga, gbc);
+
+            JButton btnSaveEdit = new JButton("Simpan");
+            gbc.gridx = 0; gbc.gridy++; editDialog.add(btnSaveEdit, gbc);
+
+            btnSaveEdit.addActionListener(saveEvent -> {
+                Studio selectedStudio = (Studio) cbEditStudio.getSelectedItem();
+                int newHarga = Integer.parseInt(tfEditHarga.getText());
+                boolean success = new JadwalController().updateJadwalStudioHarga(sample.getIdJadwal(), selectedStudio.getIdStudio(), newHarga);
+                if (success) {
+                    JOptionPane.showMessageDialog(editDialog, "Data jadwal berhasil diupdate.");
+                    editDialog.dispose();
+                    dispose();
+                    new JadwalFrame(currentUser).setVisible(true); // Refresh tampilan
+                } else {
+                    JOptionPane.showMessageDialog(editDialog, "Gagal mengupdate data.");
+                }
+            });
+
+            editDialog.setVisible(true);
+        });
+
 
         ImageIcon deleteIcon = new ImageIcon(getClass().getResource("/delete.png"));
         deleteIcon = new ImageIcon(deleteIcon.getImage().getScaledInstance(16, 16, Image.SCALE_SMOOTH));
@@ -235,11 +479,43 @@ public class JadwalFrame extends JFrame {
         btnDelete.setOpaque(true);
         btnDelete.setBorderPainted(false);
         btnDelete.setEnabled(true);
-
         btnDelete.setForeground(Color.WHITE);
 
         buttonPanel.add(btnEdit);
         buttonPanel.add(btnDelete);
+
+        btnDelete.addActionListener(e -> {
+            int confirm = JOptionPane.showOptionDialog(
+                    null,
+                    "Hapus seluruh jadwal film di studio ini atau hanya jam ini?",
+                    "Konfirmasi Hapus",
+                    JOptionPane.YES_NO_CANCEL_OPTION,
+                    JOptionPane.QUESTION_MESSAGE,
+                    null,
+                    new Object[]{"Hapus Semua", "Hapus Jam Ini", "Batal"},
+                    "Batal"
+            );
+
+            if (confirm == 2 || confirm == JOptionPane.CLOSED_OPTION) return;
+
+            JadwalController jc = new JadwalController();
+            boolean success = false;
+
+            if (confirm == 0) { // Hapus Semua
+                success = jc.hapusSemuaJadwalFilmDiStudio(sample.getIdFilm(), sample.getIdStudio());
+            } else { // Hapus per jam (hapus hanya jam pertama sebagai contoh)
+                success = jc.hapusJadwalPerJam(group.get(0).getIdJadwal()); // atau bisa looping untuk tombol per jam nanti
+            }
+
+            if (success) {
+                JOptionPane.showMessageDialog(null, "Jadwal berhasil dihapus.");
+                dispose();
+                new JadwalFrame(currentUser).setVisible(true); // refresh tampilan
+            } else {
+                JOptionPane.showMessageDialog(null, "Gagal menghapus jadwal.");
+            }
+        });
+
 
         right.add(lblInfo);
         right.add(lblStudio);
