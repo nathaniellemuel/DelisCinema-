@@ -9,6 +9,9 @@ public class Jadwal {
     private LocalDate tanggal;
     private LocalTime jam;
     private int harga;
+    private Film film;
+    private Studio studio;
+
 
     public Jadwal() {}
 
@@ -45,5 +48,22 @@ public class Jadwal {
     public int getHarga() {
         return harga;
     }
+
+    public Film getFilm() {
+        return film;
+    }
+
+    public void setFilm(Film film) {
+        this.film = film;
+    }
+
+    public Studio getStudio() {
+        return studio;
+    }
+
+    public void setStudio(Studio studio) {
+        this.studio = studio;
+    }
+
 
 }

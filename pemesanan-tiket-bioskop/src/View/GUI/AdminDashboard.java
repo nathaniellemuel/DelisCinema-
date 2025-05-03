@@ -81,7 +81,7 @@ public class AdminDashboard extends JFrame {
 
         btnJadwal.addActionListener(e -> {
             dispose();
-//            new JadwalFrame(user).setVisible(true);
+            new JadwalFrame(user).setVisible(true);
         });
 
         btnLogout.addActionListener((ActionEvent e) -> {

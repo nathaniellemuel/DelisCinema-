@@ -1,12 +1,14 @@
 package Controller;
+import Model.Film;
 import Model.Jadwal;
+import Model.Studio;
 import Utility.DBUtil;
 
 import java.sql.*;
+import java.sql.Date;
 import java.time.LocalDate;
 import java.time.LocalTime;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 
 public class JadwalController {
 
@@ -77,4 +79,70 @@ public class JadwalController {
             return false;
         }
     }
+
+    public static Map<String, List<Jadwal>> getGroupedJadwal() {
+        Map<String, List<Jadwal>> grouped = new LinkedHashMap<>();
+
+
+        String sql = """
+    SELECT 
+        j.id_jadwal, j.id_film, j.id_studio, j.tanggal, j.jam, j.harga,
+        f.judul, f.durasi, f.genre, f.status,
+        s.nama_studio, s.kapasitas
+    FROM jadwal j
+    JOIN film f ON j.id_film = f.id_film
+    JOIN studio s ON j.id_studio = s.id_studio
+    WHERE f.status = 'tayang'
+    ORDER BY f.judul, s.nama_studio, j.jam
+""";
+
+
+        try (Connection conn = DBUtil.getConnection();
+             Statement stmt = conn.createStatement();
+             ResultSet rs = stmt.executeQuery(sql)) {
+
+            while (rs.next()) {
+                Jadwal jadwal = new Jadwal(
+                        rs.getInt("id_jadwal"),
+                        rs.getInt("id_film"),
+                        rs.getInt("id_studio"),
+                        rs.getDate("tanggal").toLocalDate(),
+                        rs.getTime("jam").toLocalTime(),
+                        rs.getInt("harga")
+                );
+
+                Film film = new Film(
+                        rs.getInt("id_film"),
+                        rs.getString("judul"),
+                        rs.getInt("durasi"),
+                        rs.getString("genre"),
+                        rs.getString("status")
+                );
+                Studio studio = new Studio(
+                        rs.getInt("id_studio"),
+                        rs.getString("nama_studio"),
+                        rs.getInt("kapasitas")
+                );
+
+                jadwal.setFilm(film);
+                jadwal.setStudio(studio);
+
+                // Gunakan ID film + studio sebagai key agar unik
+                String key = film.getIdFilm() + "-" + studio.getIdStudio();
+
+                grouped.computeIfAbsent(key, k -> new ArrayList<>()).add(jadwal);
+            }
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+
+        return grouped;
+    }
+
+
+
+
+
+
 }

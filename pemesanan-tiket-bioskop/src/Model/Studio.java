@@ -14,5 +14,29 @@ public class Studio {
     }
 
     // Getter-setter
+    public int getIdStudio() {
+        return idStudio;
+    }
+
+    public void setIdStudio(int idStudio) {
+        this.idStudio = idStudio;
+    }
+
+    public String getNamaStudio() {
+        return namaStudio;
+    }
+
+    public void setNamaStudio(String namaStudio) {
+        this.namaStudio = namaStudio;
+    }
+
+    public int getKapasitas() {
+        return kapasitas;
+    }
+
+    public void setKapasitas(int kapasitas) {
+        this.kapasitas = kapasitas;
+    }
+
 
 }
