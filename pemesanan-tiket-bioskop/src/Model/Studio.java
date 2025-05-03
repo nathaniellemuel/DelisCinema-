@@ -38,5 +38,10 @@ public class Studio {
         this.kapasitas = kapasitas;
     }
 
+    @Override
+    public String toString() {
+        return namaStudio;
+    }
+
 
 }
