@@ -7,7 +7,7 @@ import javax.swing.*;
 import java.awt.*;
 
  import View.GUI.AdminDashboard;
-//import View.GUI.Staff.StaffDashboard;
+import View.GUI.Staff.StaffDashboard;
 
 public class LoginFrame extends JFrame {
     private JTextField tfUsername;
@@ -128,7 +128,7 @@ public class LoginFrame extends JFrame {
                 if (user.getRole().equals("admin")) {
                      new AdminDashboard(user).setVisible(true);
                 } else if (user.getRole().equals("staff")) {
-//                     new StaffDashboard(user).setVisible(true);
+                     new StaffDashboard(user).setVisible(true);
                 }
             } else {
                 JOptionPane.showMessageDialog(LoginFrame.this, "Login gagal. Periksa username/password.");
