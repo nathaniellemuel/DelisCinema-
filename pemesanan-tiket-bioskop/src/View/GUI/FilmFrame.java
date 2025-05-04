@@ -53,11 +53,13 @@ public class FilmFrame extends JFrame {
         JButton btnDashboard = createSidebarButtonWithIcon("Dashboard", "/home.png");
         JButton btnFilm = createSidebarButtonWithIcon("Film", "/film.png");
         JButton btnJadwal = createSidebarButtonWithIcon("Jadwal", "/jadwal.png");
+        JButton btnLaporan = createSidebarButtonWithIcon("Laporan", "/laporan.png");
         JButton btnLogout = createSidebarButtonWithIcon("Logout", "/logout.png");
 
         sidebar.add(btnDashboard);
         sidebar.add(btnFilm);
         sidebar.add(btnJadwal);
+        sidebar.add(btnLaporan);
         sidebar.add(Box.createVerticalGlue());
         sidebar.add(btnLogout);
 
@@ -164,6 +166,11 @@ public class FilmFrame extends JFrame {
         btnJadwal.addActionListener(e -> {
             dispose();
              new JadwalFrame(currentUser).setVisible(true);
+        });
+
+        btnLaporan.addActionListener(e -> {
+            dispose();
+            new LaporanFrame(user).setVisible(true);
         });
 
         btnLogout.addActionListener(e -> {
