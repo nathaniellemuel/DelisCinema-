@@ -14,9 +14,10 @@ public class TransaksiController {
     public List<Transaksi> getAllTransaksi() {
         List<Transaksi> transaksiList = new ArrayList<>();
 
-        String sql = "SELECT t.id_transaksi, t.id_user, t.id_jadwal, t.waktu_beli, t.total_kursi, t.total_bayar, " +
+        String sql = "SELECT t.id_transaksi, t.id_user, u.username, t.id_jadwal, t.waktu_beli, t.total_kursi, t.total_bayar, " +
                 "j.tanggal, j.jam, j.harga, f.judul, s.nama_studio " +
                 "FROM transaksi t " +
+                "JOIN user u ON t.id_user = u.id_user " +
                 "JOIN jadwal j ON t.id_jadwal = j.id_jadwal " +
                 "JOIN film f ON j.id_film = f.id_film " +
                 "JOIN studio s ON j.id_studio = s.id_studio " +
@@ -34,6 +35,25 @@ public class TransaksiController {
                 t.setWaktuBeli(rs.getTimestamp("waktu_beli").toLocalDateTime());
                 t.setTotalKursi(rs.getInt("total_kursi"));
                 t.setTotalBayar(rs.getInt("total_bayar"));
+
+                // deskripsi lengkap jadwal
+                String deskripsiJadwal = rs.getString("judul") + ", " +
+                        rs.getString("tanggal") + " " +
+                        rs.getString("jam") + ", Studio " +
+                        rs.getString("nama_studio");
+                t.setDeskripsiJadwal(deskripsiJadwal);
+
+                // ambil semua kursi dari kursi_terpesan
+                List<String> kursi = new ArrayList<>();
+                String kursiSQL = "SELECT nomor_kursi FROM kursi_terpesan WHERE id_transaksi = ?";
+                try (PreparedStatement ps = conn.prepareStatement(kursiSQL)) {
+                    ps.setInt(1, t.getIdTransaksi());
+                    ResultSet rsKursi = ps.executeQuery();
+                    while (rsKursi.next()) {
+                        kursi.add(rsKursi.getString("nomor_kursi"));
+                    }
+                }
+                t.setKursiDipesan(kursi);
 
                 transaksiList.add(t);
             }

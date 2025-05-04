@@ -38,6 +38,24 @@ public class UserController {
         return null; // login gagal
     }
 
+    public String getUsernameById(int idUser) {
+        String sql = "SELECT username FROM user WHERE id_user = ?";
+        try (Connection conn = DBUtil.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+
+            stmt.setInt(1, idUser);
+            ResultSet rs = stmt.executeQuery();
+
+            if (rs.next()) {
+                return rs.getString("username");
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return "Unknown";
+    }
+
+
     public void logout() {
         System.out.println("Logout berhasil. Sampai jumpa!");
     }
