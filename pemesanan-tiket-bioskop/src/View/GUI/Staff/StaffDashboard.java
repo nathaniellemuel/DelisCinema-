@@ -9,7 +9,6 @@ import java.awt.*;
 import java.awt.event.ActionEvent;
 
 public class StaffDashboard extends JFrame{
-
     private User user;
     private UserController userController;
 
@@ -24,7 +23,6 @@ public class StaffDashboard extends JFrame{
             return;
         }
 
-        setTitle("Dashboard Staff - Delis Cinema");
         ImageIcon appIcon = new ImageIcon(getClass().getResource("/Desktop.png"));
         setIconImage(appIcon.getImage());
         setIconImage(appIcon.getImage());
