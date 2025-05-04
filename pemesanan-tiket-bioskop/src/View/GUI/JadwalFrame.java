@@ -499,7 +499,7 @@ public class JadwalFrame extends JFrame {
                     JOptionPane.YES_NO_CANCEL_OPTION,
                     JOptionPane.QUESTION_MESSAGE,
                     null,
-                    new Object[]{"Hapus Semua", "Hapus Jam Ini", "Batal"},
+                    new Object[]{"Hapus Semua", "Batal"},
                     "Batal"
             );
 
@@ -510,8 +510,6 @@ public class JadwalFrame extends JFrame {
 
             if (confirm == 0) { // Hapus Semua
                 success = jc.hapusSemuaJadwalFilmDiStudio(sample.getIdFilm(), sample.getIdStudio());
-            } else { // Hapus per jam (hapus hanya jam pertama sebagai contoh)
-                success = jc.hapusJadwalPerJam(group.get(0).getIdJadwal()); // atau bisa looping untuk tombol per jam nanti
             }
 
             if (success) {

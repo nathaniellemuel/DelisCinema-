@@ -1,6 +1,7 @@
 package Model;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 public class Transaksi {
     private int idTransaksi;
@@ -9,8 +10,10 @@ public class Transaksi {
     private LocalDateTime waktuBeli;
     private int totalKursi;
     private int totalBayar;
+    private String deskripsiJadwal;
+    private List<String> kursiDipesan;
 
-    private Jadwal jadwal; // ← supaya bisa akses film & studio lewat sini
+    private Jadwal jadwal; //
 
     public Transaksi() {}
 
@@ -44,4 +47,20 @@ public class Transaksi {
 
     public Jadwal getJadwal() { return jadwal; }
     public void setJadwal(Jadwal jadwal) { this.jadwal = jadwal; }
+
+    public String getDeskripsiJadwal() {
+        return deskripsiJadwal;
+    }
+
+    public void setDeskripsiJadwal(String deskripsiJadwal) {
+        this.deskripsiJadwal = deskripsiJadwal;
+    }
+
+    public List<String> getKursiDipesan() {
+        return kursiDipesan;
+    }
+
+    public void setKursiDipesan(List<String> kursiDipesan) {
+        this.kursiDipesan = kursiDipesan;
+    }
 }

@@ -2,6 +2,7 @@ package Controller;
 import Model.Film;
 import Utility.DBUtil;
 
+import javax.swing.*;
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
@@ -60,22 +61,36 @@ public class FilmController {
 
 
     public boolean tambahFilm(Film film) {
-        String sql = "INSERT INTO film (judul, durasi, genre, status) VALUES (?, ?, ?, ?)";
+        String cekJudulSql = "SELECT COUNT(*) FROM film WHERE LOWER(judul) = LOWER(?)";
+        String insertSql = "INSERT INTO film (judul, durasi, genre, status) VALUES (?, ?, ?, ?)";
 
-        try (Connection conn = DBUtil.getConnection();
-             PreparedStatement stmt = conn.prepareStatement(sql)) {
+        try (Connection conn = DBUtil.getConnection()) {
+            // Cek apakah judul sudah ada
+            try (PreparedStatement cekStmt = conn.prepareStatement(cekJudulSql)) {
+                cekStmt.setString(1, film.getJudul());
+                try (ResultSet rs = cekStmt.executeQuery()) {
+                    if (rs.next() && rs.getInt(1) > 0) {
+                        JOptionPane.showMessageDialog(null, "Judul film sudah ada!", "Duplikat", JOptionPane.WARNING_MESSAGE);
+                        return false;
+                    }
+                }
+            }
 
-            stmt.setString(1, film.getJudul());
-            stmt.setInt(2, film.getDurasi());
-            stmt.setString(3, film.getGenre());
-            stmt.setString(4, film.getStatus());
-            return stmt.executeUpdate() > 0;
+            // Lanjut insert kalau belum ada
+            try (PreparedStatement insertStmt = conn.prepareStatement(insertSql)) {
+                insertStmt.setString(1, film.getJudul());
+                insertStmt.setInt(2, film.getDurasi());
+                insertStmt.setString(3, film.getGenre());
+                insertStmt.setString(4, film.getStatus());
+                return insertStmt.executeUpdate() > 0;
+            }
 
         } catch (SQLException e) {
             e.printStackTrace();
             return false;
         }
     }
+
 
     public boolean hapusFilm(int idFilm) {
         String sqlDeleteJadwal = "DELETE FROM jadwal WHERE id_film = ?";

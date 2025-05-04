@@ -7,7 +7,12 @@ import Model.User;
 import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
 import java.awt.*;
+import java.text.NumberFormat;
+import java.time.YearMonth;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
+import java.util.Locale;
+import java.util.Map;
 
 public class LaporanFrame extends JFrame {
     private User currentUser;
@@ -148,38 +153,70 @@ public class LaporanFrame extends JFrame {
         model.setRowCount(0);
         model.setColumnCount(0);
 
+        NumberFormat rupiahFormat = NumberFormat.getCurrencyInstance(new Locale("id", "ID"));
+        DateTimeFormatter waktuBeliFormat = DateTimeFormatter.ofPattern("EEEE, d MMMM yyyy HH:mm", new Locale("id", "ID"));
+        DateTimeFormatter bulanFormat = DateTimeFormatter.ofPattern("MMMM yyyy", new Locale("id", "ID"));
+
         switch (mode) {
             case "Transaksi Terbaru":
-                model.setColumnIdentifiers(new Object[]{"ID", "User", "Jadwal", "Waktu Beli", "Kursi", "Total Bayar"});
+                model.setColumnIdentifiers(new Object[]{"No", "Username", "Jadwal", "Waktu Beli", "Kursi", "Total Bayar"});
+                int no1 = 1;
                 for (Transaksi t : tc.getAllTransaksi()) {
+                    String kursiGabung = String.join(", ", t.getKursiDipesan());
+                    String username = new UserController().getUsernameById(t.getIdUser());
+//                    String jadwalJam = t.getJam().toString();
+                    String waktuBeli = t.getWaktuBeli().format(waktuBeliFormat);
+                    String totalBayar = rupiahFormat.format(t.getTotalBayar());
+
                     model.addRow(new Object[]{
-                            t.getIdTransaksi(), t.getIdUser(), t.getIdJadwal(),
-                            t.getWaktuBeli(), t.getTotalKursi(), t.getTotalBayar()
+                            no1++,
+                            username,
+                            t.getDeskripsiJadwal() + " ",
+                            waktuBeli,
+                            kursiGabung,
+                            totalBayar
                     });
                 }
                 break;
 
             case "Pendapatan per Bulan":
-                model.setColumnIdentifiers(new Object[]{"Bulan", "Pendapatan"});
-                tc.getPendapatanPerBulan().forEach((k, v) -> model.addRow(new Object[]{k, v}));
+                model.setColumnIdentifiers(new Object[]{"No", "Bulan", "Pendapatan"});
+                int no2 = 1;
+                for (Map.Entry<String, Integer> entry : tc.getPendapatanPerBulan().entrySet()) {
+                    String bulan = YearMonth.parse(entry.getKey()).format(bulanFormat); // pastikan key = 2025-05
+                    String pendapatan = rupiahFormat.format(entry.getValue());
+                    model.addRow(new Object[]{no2++, bulan, pendapatan});
+                }
                 break;
 
             case "Pendapatan per Studio":
-                model.setColumnIdentifiers(new Object[]{"Studio", "Pendapatan"});
-                tc.getPendapatanPerStudio().forEach((k, v) -> model.addRow(new Object[]{k, v}));
+                model.setColumnIdentifiers(new Object[]{"No", "Studio", "Pendapatan"});
+                int no3 = 1;
+                for (Map.Entry<String, Integer> entry : tc.getPendapatanPerStudio().entrySet()) {
+                    String pendapatan = rupiahFormat.format(entry.getValue());
+                    model.addRow(new Object[]{no3++, entry.getKey(), pendapatan});
+                }
                 break;
 
             case "Pendapatan per Film":
-                model.setColumnIdentifiers(new Object[]{"Film", "Pendapatan"});
-                tc.getPendapatanPerFilm().forEach((k, v) -> model.addRow(new Object[]{k, v}));
+                model.setColumnIdentifiers(new Object[]{"No", "Film", "Pendapatan"});
+                int no4 = 1;
+                for (Map.Entry<String, Integer> entry : tc.getPendapatanPerFilm().entrySet()) {
+                    String pendapatan = rupiahFormat.format(entry.getValue());
+                    model.addRow(new Object[]{no4++, entry.getKey(), pendapatan});
+                }
                 break;
 
             case "Film Paling Banyak Ditonton":
-                model.setColumnIdentifiers(new Object[]{"Film", "Jumlah Penonton"});
-                tc.getFilmPalingBanyakDitonton().forEach((k, v) -> model.addRow(new Object[]{k, v}));
+                model.setColumnIdentifiers(new Object[]{"No", "Film", "Jumlah Penonton"});
+                int no5 = 1;
+                for (Map.Entry<String, Integer> entry : tc.getFilmPalingBanyakDitonton().entrySet()) {
+                    model.addRow(new Object[]{no5++, entry.getKey(), entry.getValue()});
+                }
                 break;
         }
     }
+
 
 
 }
