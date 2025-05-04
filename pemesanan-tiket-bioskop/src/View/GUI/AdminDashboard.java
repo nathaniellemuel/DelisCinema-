@@ -50,12 +50,14 @@ public class AdminDashboard extends JFrame {
         JButton btnDashboard = createSidebarButtonWithIcon("Dashboard", "/home.png");
         JButton btnFilm = createSidebarButtonWithIcon("Film", "/film.png");
         JButton btnJadwal = createSidebarButtonWithIcon("Jadwal", "/jadwal.png");
+        JButton btnLaporan = createSidebarButtonWithIcon("Laporan", "/laporan.png");
         JButton btnLogout = createSidebarButtonWithIcon("Logout", "/logout.png");
 
 
         sidebar.add(btnDashboard);
         sidebar.add(btnFilm);
         sidebar.add(btnJadwal);
+        sidebar.add(btnLaporan);
         sidebar.add(Box.createVerticalGlue());
         sidebar.add(btnLogout);
 
@@ -82,6 +84,11 @@ public class AdminDashboard extends JFrame {
         btnJadwal.addActionListener(e -> {
             dispose();
             new JadwalFrame(user).setVisible(true);
+        });
+
+        btnLaporan.addActionListener(e -> {
+            dispose();
+            new LaporanFrame(user).setVisible(true);
         });
 
         btnLogout.addActionListener((ActionEvent e) -> {
