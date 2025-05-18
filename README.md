@@ -47,6 +47,7 @@ Program ini dikembangkan menggunakan pola arsitektur MVC (Model-View-Controller)
     Email: [example@gmail.com](mailto:example@gmail.com)
 - **Anggota 5:** Fauzan Akbar Wijaya   
   NIM:  15240092
+  
   Email: [15240092@bsi.ac.id](mailto:15240092@bsi.ac.id)
 
 ---
