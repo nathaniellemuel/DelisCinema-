@@ -31,22 +31,22 @@ Program ini dikembangkan menggunakan pola arsitektur MVC (Model-View-Controller)
   Email: [example@gmail.com](mailto:example@gmail.com)
 
 - **Anggota 1:** Nathaniel Lemuel Chandra  
-  NIM:   -
+  NIM: -  
   Email: [example@gmail.com](mailto:example@gmail.com)
 
 - **Anggota 2:** Nicholas Romanov  
-  NIM:   -
+  NIM: -  
   Email: [example@gmail.com](mailto:example@gmail.com)
 
 - **Anggota 3:** Mochamad Rico Dwi Anggoro  
-  NIM:   -
+  NIM: -  
   Email: [example@gmail.com](mailto:example@gmail.com)
 
 - **Anggota 4:** M. Arief Ardiansyah Sirun   
-    NIM:  -
-    Email: [example@gmail.com](mailto:example@gmail.com)
-- **Anggota 5:** Fauzan Akbar Wijaya   
-  NIM:  15240092
+  NIM: -  
+  Email: [example@gmail.com](mailto:example@gmail.com)
+- **Anggota 5:** Fauzan Akbar Wijaya
+  NIM: 15240092  
   Email: [15240092@bsi.ac.id](mailto:15240092@bsi.ac.id)
 
 ---
