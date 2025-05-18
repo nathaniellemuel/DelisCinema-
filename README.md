@@ -39,14 +39,14 @@ Program ini dikembangkan menggunakan pola arsitektur MVC (Model-View-Controller)
   Email: [example@gmail.com](mailto:example@gmail.com)
 
 - **Anggota 3:** Mochamad Rico Dwi Anggoro  
-  NIM: Mochamad Rico Dwi Anggoro  
+  NIM:   
   Email: [example@gmail.com](mailto:example@gmail.com)
 
 - **Anggota 4:** M. Arief Ardiansyah Sirun   
-    NIM: M. Arief Ardiansyah Sirun  
+    NIM:  
     Email: [example@gmail.com](mailto:example@gmail.com)
 - **Anggota 5:** Fauzan Akbar Wijaya   
-  NIM:  
+  NIM:  15240092
   Email: [15240092@bsi.ac.id](mailto:15240092@bsi.ac.id)
 
 ---
