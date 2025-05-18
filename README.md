@@ -26,10 +26,7 @@ Program ini dikembangkan menggunakan pola arsitektur MVC (Model-View-Controller)
 ---
 
 ## Anggota Kelompok
-- **Ketua:** Iman Bagus  
-  NIM: -  
-  Email: [example@gmail.com](mailto:example@gmail.com)
-
+- **Ketua:** Iman Bagus
 - **Anggota 1:** Nathaniel Lemuel Chandra  
 - **Anggota 2:** Nicholas Romanov  
 - **Anggota 3:** Mochamad Rico Dwi Anggoro  
