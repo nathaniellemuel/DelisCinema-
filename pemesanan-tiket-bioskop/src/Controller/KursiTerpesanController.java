@@ -102,5 +102,3 @@ public class KursiTerpesanController {
         return false;
     }
 }
-
-// komentar
