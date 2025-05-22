@@ -64,5 +64,3 @@ public class Transaksi {
         this.kursiDipesan = kursiDipesan;
     }
 }
-
-//komentar
