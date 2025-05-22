@@ -535,5 +535,3 @@ public class JadwalFrame extends JFrame {
 
 
 }
-
-// komentar
