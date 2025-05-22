@@ -7,8 +7,20 @@ import java.io.InputStream;
 import java.net.URL;
 
 public class SoundUtil {
+    private static boolean muted = false;
+
+    public static void setMuted(boolean mute) {
+        muted = mute;
+    }
+
+    public static boolean isMuted() {
+        return muted;
+    }
 
     public static void playSound(String soundFileName) {
+        if (muted) {
+            return;
+        }
         try {
             System.out.println("Attempting to play sound: " + soundFileName);
 
