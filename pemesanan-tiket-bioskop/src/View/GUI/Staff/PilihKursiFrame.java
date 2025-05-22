@@ -17,9 +17,24 @@ public class PilihKursiFrame extends JFrame {
     private final int hargaPremium; // Will be calculated as 150% of regular price
     private int totalHarga = 0;
     private NumberFormat currencyFormatter;
+    private StaffDashboard dashboardFrame;
+    private String film;
+    private String studio;
+    private String date;
+    private String time;
 
     public PilihKursiFrame(JFrame frameSebelumnya, String film, String studio, String date, String time, int hargaFromDB) {
+        this(frameSebelumnya, film, studio, date, time, hargaFromDB,
+                (frameSebelumnya instanceof StaffDashboard) ? (StaffDashboard)frameSebelumnya : null);
+    }
+
+    public PilihKursiFrame(JFrame frameSebelumnya, String film, String studio, String date, String time, int hargaFromDB, StaffDashboard dashboardFrame) {
         this.frameSebelumnya = frameSebelumnya;
+        this.film = film;
+        this.studio = studio;
+        this.date = date;
+        this.time = time;
+        this.dashboardFrame = dashboardFrame;
 
         // Setup price from database
         this.hargaRegular = hargaFromDB;
@@ -206,6 +221,22 @@ public class PilihKursiFrame extends JFrame {
         btnLanjut.setForeground(Color.WHITE);  // Changed text color to white
         btnLanjut.setFocusPainted(false);
         btnLanjut.setEnabled(false); // awalnya tidak aktif
+
+        // Add action listener to LANJUT button
+        btnLanjut.addActionListener(e -> {
+            // Check if dashboardFrame is available
+            StaffDashboard targetDashboard = dashboardFrame;
+
+            // If dashboardFrame is null but frameSebelumnya is a StaffDashboardFrame, use frameSebelumnya
+            if (targetDashboard == null && frameSebelumnya instanceof StaffDashboard) {
+                targetDashboard = (StaffDashboard) frameSebelumnya;
+            }
+
+            // Create and show summary frame
+            new SummaryFrame(this, film, studio, date, time, kursiTerpilih, totalHarga, targetDashboard);
+            setVisible(false);
+        });
+
         panelBawah.add(btnLanjut);
 
         // Tombol Kembali
