@@ -191,6 +191,7 @@ public class SummaryFrame extends JFrame {
             btnCetakTiket.setBackground(Color.GRAY);
         });
 
+        // Inside SummaryFrame constructor, replace the existing btnSelesai action listener
         btnSelesai.addActionListener(e -> {
             Connection conn = DBUtil.getConnection();
 
@@ -211,7 +212,7 @@ public class SummaryFrame extends JFrame {
                 if (rs.next()) {
                     int idTransaksi = rs.getInt(1);
 
-                    // save the booked seats with the valid transaction ID
+                    // Now save the booked seats with the valid transaction ID
                     KursiController kursiController = new KursiController(conn);
                     boolean success = kursiController.saveBookedSeats(idJadwal, idTransaksi, kursiTerpilih);
 
@@ -243,5 +244,3 @@ public class SummaryFrame extends JFrame {
         setVisible(true);
     }
 }
-
-// komentar
