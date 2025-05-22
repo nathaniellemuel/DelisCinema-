@@ -51,10 +51,14 @@ public class JadwalController {
         try (Connection conn = DBUtil.getConnection();
              PreparedStatement stmt = conn.prepareStatement(sql)) {
 
+            // Get current time and format it to HH:mm (without seconds)
+            LocalTime currentTime = LocalTime.now();
+            LocalTime timeWithoutSeconds = LocalTime.of(currentTime.getHour(), currentTime.getMinute());
+
             stmt.setInt(1, jadwal.getIdFilm());
             stmt.setInt(2, jadwal.getIdStudio());
             stmt.setDate(3, Date.valueOf(jadwal.getTanggal()));
-            stmt.setTime(4, Time.valueOf(jadwal.getJam()));
+            stmt.setTime(4, Time.valueOf(timeWithoutSeconds)); // Use real-time HH:mm
             stmt.setInt(5, jadwal.getHarga());
             return stmt.executeUpdate() > 0;
 
@@ -82,7 +86,6 @@ public class JadwalController {
     public static Map<String, List<Jadwal>> getGroupedJadwal() {
         Map<String, List<Jadwal>> grouped = new LinkedHashMap<>();
 
-
         String sql = """
     SELECT 
         j.id_jadwal, j.id_film, j.id_studio, j.tanggal, j.jam, j.harga,
@@ -94,7 +97,6 @@ public class JadwalController {
     WHERE f.status = 'tayang'
     ORDER BY f.judul, s.nama_studio, j.jam
 """;
-
 
         try (Connection conn = DBUtil.getConnection();
              Statement stmt = conn.createStatement();
@@ -276,6 +278,4 @@ public class JadwalController {
             return false;
         }
     }
-
-
 }
