@@ -8,6 +8,7 @@ import java.util.Locale;
 import java.sql.Connection;
 import Controller.KursiController;
 import Utility.DBUtil;
+import Utility.SoundUtil;
 import java.sql.PreparedStatement;
 import java.sql.Statement;
 import java.sql.ResultSet;
@@ -48,6 +49,7 @@ public class SummaryFrame extends JFrame {
         btnBack.setFont(new Font("Arial", Font.BOLD, 18));
         btnBack.setFocusPainted(false);
         btnBack.addActionListener(e -> {
+            SoundUtil.playSound("/exit.wav");
             frameSebelumnya.setVisible(true);
             dispose();
         });
@@ -176,6 +178,7 @@ public class SummaryFrame extends JFrame {
 
         // Add action listener to CETAK TIKET button
         btnCetakTiket.addActionListener(e -> {
+            SoundUtil.playSound("/click-sound.wav");
             // Show success message
             JOptionPane.showMessageDialog(this,
                     "Tiket berhasil dicetak!",
@@ -193,6 +196,7 @@ public class SummaryFrame extends JFrame {
 
         // Inside SummaryFrame constructor, replace the existing btnSelesai action listener
         btnSelesai.addActionListener(e -> {
+            SoundUtil.playSound("/selesai-click.wav");
             Connection conn = DBUtil.getConnection();
 
             try {
