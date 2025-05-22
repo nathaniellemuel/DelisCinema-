@@ -17,14 +17,12 @@ import java.util.*;
 import java.util.List;
 import java.util.Timer;
 
-
 public class StaffDashboard extends JFrame {
     private JLabel dateTimeLabel;
     private JLabel selectedDateLabel, selectedFilmLabel, selectedStudioLabel, selectedTimeLabel;
     private JButton selectedTimeButton = null; // Tombol jam yang dipilih
     private JButton pilihKursi; // ubah ini jadi variabel global supaya bisa diakses
     private Jadwal selectedJadwal = null; // Tambahkan variabel untuk menyimpan jadwal yang dipilih
-
 
     public StaffDashboard(User user) {
         if (user == null) {
@@ -48,7 +46,7 @@ public class StaffDashboard extends JFrame {
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setLayout(new BorderLayout());
 
-        // TOP PANEL: DATE + LOCATION
+        // TOP PANEL: DATE + LOCATION + MUTE BUTTON
         JPanel topPanel = new JPanel();
         topPanel.setLayout(new BoxLayout(topPanel, BoxLayout.Y_AXIS));
         topPanel.setBorder(BorderFactory.createEmptyBorder(10, 20, 10, 20));
@@ -58,7 +56,35 @@ public class StaffDashboard extends JFrame {
         locationLabel.setFont(new Font("Arial", Font.BOLD, 16));
         topPanel.add(dateTimeLabel);
         topPanel.add(locationLabel);
-        add(topPanel, BorderLayout.NORTH);
+
+        // Mute/Unmute button
+        JButton muteButton = new JButton();
+        muteButton.setFocusable(false);
+        muteButton.setPreferredSize(new Dimension(48, 48));
+        muteButton.setMaximumSize(new Dimension(48, 48));
+        muteButton.setBorderPainted(false);
+        muteButton.setContentAreaFilled(false);
+
+        // Set initial icon/text
+        updateMuteButtonIcon(muteButton);
+
+        muteButton.addActionListener(e -> {
+            SoundUtil.setMuted(!SoundUtil.isMuted());
+            updateMuteButtonIcon(muteButton);
+        });
+
+        // Add mute button to the top right
+        JPanel topRightPanel = new JPanel();
+        topRightPanel.setOpaque(false);
+        topRightPanel.setLayout(new BorderLayout());
+        topRightPanel.add(muteButton, BorderLayout.EAST);
+
+        JPanel topRow = new JPanel(new BorderLayout());
+        topRow.setOpaque(false);
+        topRow.add(topPanel, BorderLayout.WEST);
+        topRow.add(topRightPanel, BorderLayout.EAST);
+
+        add(topRow, BorderLayout.NORTH);
 
         // CENTER PANEL: MOVIE LIST
         JPanel outerPanel = new JPanel();
@@ -95,7 +121,6 @@ public class StaffDashboard extends JFrame {
                 addMovieBlock(centerPanel, f.getJudul(), f.getGenre(), f.getDurasi(), s.getNamaStudio(), jadwals);
             }
         }
-
 
         // BOTTOM PANEL: SUMMARY + BUTTON
         JPanel bottomPanel = new JPanel(new BorderLayout());
@@ -307,5 +332,16 @@ public class StaffDashboard extends JFrame {
                 });
             }
         }, 0, 1000);
+    }
+
+    private void updateMuteButtonIcon(JButton muteButton) {
+        if (SoundUtil.isMuted()) {
+            // Use a simple Unicode icon or text for muted
+            muteButton.setText("\uD83D\uDD07"); // Speaker with X
+            muteButton.setToolTipText("Unmute");
+        } else {
+            muteButton.setText("\uD83D\uDD08"); // Speaker
+            muteButton.setToolTipText("Mute");
+        }
     }
 }
