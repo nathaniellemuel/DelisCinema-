@@ -120,5 +120,3 @@ public class TransaksiController {
         return map;
     }
 }
-
-//komentar
