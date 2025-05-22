@@ -9,6 +9,7 @@ import java.util.Locale;
 import java.sql.Connection;
 import Utility.DBUtil;
 import Controller.KursiController;
+import Utility.SoundUtil;
 
 public class PilihKursiFrame extends JFrame {
     private JFrame frameSebelumnya;
@@ -73,6 +74,7 @@ public class PilihKursiFrame extends JFrame {
         btnBack.setFont(new Font("Arial", Font.BOLD, 18));
         btnBack.setFocusPainted(false);
         btnBack.addActionListener(e -> {
+            SoundUtil.playSound("/exit.wav");
             frameSebelumnya.setVisible(true);
             dispose();
         });
@@ -181,6 +183,7 @@ public class PilihKursiFrame extends JFrame {
                     }
 
                     btnKursi.addActionListener(e -> {
+                        SoundUtil.playSound("/click-sound.wav");
                         if (kursiTerpilih.contains(kodeKursi)) {
                             kursiTerpilih.remove(kodeKursi);
                             if (row == 3) {
@@ -235,6 +238,7 @@ public class PilihKursiFrame extends JFrame {
         btnLanjut.setEnabled(false);
 
         btnLanjut.addActionListener(e -> {
+            SoundUtil.playSound("/select-click.wav");
             StaffDashboard targetDashboard = dashboardFrame;
             if (targetDashboard == null && frameSebelumnya instanceof StaffDashboard) {
                 targetDashboard = (StaffDashboard) frameSebelumnya;
