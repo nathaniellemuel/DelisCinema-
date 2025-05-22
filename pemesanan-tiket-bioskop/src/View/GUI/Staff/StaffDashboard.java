@@ -5,6 +5,7 @@ import Model.Film;
 import Model.Jadwal;
 import Model.Studio;
 import Model.User;
+import Utility.SoundUtil; // Add this import
 import View.GUI.LoginFrame;
 import View.GUI.Staff.PilihKursiFrame;
 
@@ -163,6 +164,9 @@ public class StaffDashboard extends JFrame {
         pilihKursi.setEnabled(false);
 
         pilihKursi.addActionListener(e -> {
+            // Play sound when button is clicked
+            SoundUtil.playSound("/select-click.wav");
+
             String film = selectedFilmLabel.getText();
             String studio = selectedStudioLabel.getText();
             String date = selectedDateLabel.getText();
@@ -224,6 +228,9 @@ public class StaffDashboard extends JFrame {
             timeButton.setFont(new Font("Monospaced", Font.BOLD, 14));
 
             timeButton.addActionListener(e -> {
+                // Play sound when time button is clicked
+                SoundUtil.playSound("/click-sound.wav");
+
                 // Jika tombol yang sama diklik dua kali
                 if (selectedTimeButton == timeButton) {
                     // Reset tombol ke default
