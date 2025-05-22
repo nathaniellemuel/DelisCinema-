@@ -257,5 +257,3 @@ public class PilihKursiFrame extends JFrame {
         btnLanjut.setBackground(!kursiTerpilih.isEmpty() ? new Color(220, 0, 0) : Color.LIGHT_GRAY);
     }
 }
-
-//komentar
