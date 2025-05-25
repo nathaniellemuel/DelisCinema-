@@ -231,7 +231,6 @@ public class JadwalFrame extends JFrame {
         JadwalController jadwalController = new JadwalController();
         HashMap<String, List<Jadwal>> groupedJadwal = (HashMap<String, List<Jadwal>>) jadwalController.getGroupedJadwal();
 
-
         for (List<Jadwal> group : groupedJadwal.values()) {
             JPanel card = createGroupedJadwalCard(group);
             panelList.add(card);
