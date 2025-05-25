@@ -2,19 +2,28 @@ package View.GUI;
 
 import Controller.UserController;
 import Model.User;
+import Controller.FilmController;
 
 import javax.swing.*;
+import javax.swing.border.EmptyBorder;
 import java.awt.*;
 import java.awt.event.ActionEvent;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.Locale;
 
 public class AdminDashboard extends JFrame {
 
     private User user;
     private UserController userController;
+    private FilmController filmController;
+    private JLabel lblDateTime;
+    private Timer timer;
 
     public AdminDashboard(User user) {
         this.user = user;
         this.userController = new UserController();
+        this.filmController = new FilmController();
 
         if (this.user == null) {
             JOptionPane.showMessageDialog(null, "Anda belum login!");
@@ -61,14 +70,7 @@ public class AdminDashboard extends JFrame {
         sidebar.add(Box.createVerticalGlue());
         sidebar.add(btnLogout);
 
-        JPanel contentPanel = new JPanel(new BorderLayout());
-        contentPanel.setBackground(Color.WHITE);
-
-        JLabel lblWelcome = new JLabel("<html><h1>Selamat Datang " +
-                "Admin!</h1></html>", SwingConstants.CENTER);
-        lblWelcome.setFont(new Font("Poppins", Font.BOLD, 24));
-
-        contentPanel.add(lblWelcome, BorderLayout.CENTER);
+        JPanel contentPanel = createContentPanel();
 
         // Action Sidebar
         btnDashboard.addActionListener(e -> {
@@ -99,6 +101,7 @@ public class AdminDashboard extends JFrame {
 
         add(sidebar, BorderLayout.WEST);
         add(contentPanel, BorderLayout.CENTER);
+        startRealTimeClock();
     }
 
     private JButton createSidebarButton(String text) {
@@ -108,7 +111,7 @@ public class AdminDashboard extends JFrame {
         btn.setBackground(Color.decode("#EB1C24"));
         btn.setMaximumSize(new Dimension(Integer.MAX_VALUE, 50));
         btn.setAlignmentX(Component.CENTER_ALIGNMENT);
-        btn.setFont(new Font("Poppins", Font.PLAIN, 16));
+        btn.setFont(new Font("Arial", Font.PLAIN, 16));
         return btn;
     }
 
@@ -136,10 +139,99 @@ public class AdminDashboard extends JFrame {
         btn.setIconTextGap(10);
         btn.setMaximumSize(new Dimension(Integer.MAX_VALUE, 50));
         btn.setAlignmentX(Component.CENTER_ALIGNMENT);
-        btn.setFont(new Font("Poppins", Font.PLAIN, 16));
+        btn.setFont(new Font("Arial", Font.PLAIN, 16));
         return btn;
     }
 
+    private JPanel createContentPanel() {
+        JPanel contentPanel = new JPanel(new BorderLayout(10, 10)); // Beri sedikit jarak antar komponen
+        contentPanel.setBackground(Color.WHITE);
+        contentPanel.setBorder(new EmptyBorder(20, 20, 20, 20)); // Padding untuk keseluruhan content panel
 
+        // 1. Header Panel
+        JPanel headerPanel = new JPanel(new BorderLayout());
+        headerPanel.setOpaque(false); // Transparan agar background contentPanel terlihat
+
+        JLabel lblWelcome = new JLabel("<html>Selamat Datang, <b>" + (user != null ? user.getUsername() : "Admin") + "</b></html>");
+        lblWelcome.setFont(new Font("Arial", Font.PLAIN, 22)); // Sesuaikan font
+        headerPanel.add(lblWelcome, BorderLayout.WEST);
+
+        JPanel dateTimeLocationPanel = new JPanel();
+        dateTimeLocationPanel.setOpaque(false);
+        dateTimeLocationPanel.setLayout(new BoxLayout(dateTimeLocationPanel, BoxLayout.Y_AXIS));
+
+        lblDateTime = new JLabel(); // Akan diupdate oleh Timer
+        lblDateTime.setFont(new Font("Arial", Font.BOLD, 16));
+        lblDateTime.setAlignmentX(Component.RIGHT_ALIGNMENT);
+
+        JLabel lblLocation = new JLabel("KRAMAT JATI SQUARE");
+        lblLocation.setFont(new Font("Arial", Font.PLAIN, 14));
+        lblLocation.setForeground(Color.DARK_GRAY);
+        lblLocation.setAlignmentX(Component.RIGHT_ALIGNMENT);
+
+        dateTimeLocationPanel.add(lblDateTime);
+        dateTimeLocationPanel.add(Box.createRigidArea(new Dimension(0, 5))); // Spasi kecil
+        dateTimeLocationPanel.add(lblLocation);
+
+        headerPanel.add(dateTimeLocationPanel, BorderLayout.EAST);
+        contentPanel.add(headerPanel, BorderLayout.NORTH);
+
+        // 2. Dashboard Info Panel (untuk kartu)
+        JPanel dashboardInfoPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 20, 20)); // FlowLayout untuk kartu
+        dashboardInfoPanel.setOpaque(false);
+
+        // Data untuk kartu
+        int totalStaff = userController.getUserCount();
+        int totalFilmTayang = filmController.getFilmTayang().size();
+
+        JPanel cardStaff = createDataCard("TOTAL STAFF", String.valueOf(totalStaff), new Color(220, 237, 255), new Color(0, 82, 159));
+        JPanel cardFilmTayang = createDataCard("FILM TAYANG", String.valueOf(totalFilmTayang), new Color(215, 255, 229), new Color(0, 103, 71));
+
+        dashboardInfoPanel.add(cardStaff);
+        dashboardInfoPanel.add(cardFilmTayang);
+
+        // Menambahkan panel kartu ke tengah, tapi kita bisa bungkus lagi agar tidak memenuhi seluruh area tengah
+        JPanel centerWrapper = new JPanel(new FlowLayout(FlowLayout.CENTER, 0, 0)); //Wrapper untuk menengahkan kartu jika ruang lebih
+        centerWrapper.setOpaque(false);
+        centerWrapper.add(dashboardInfoPanel);
+
+
+        contentPanel.add(centerWrapper, BorderLayout.CENTER);
+
+        return contentPanel;
+    }
+
+    private void startRealTimeClock() {
+        SimpleDateFormat sdf = new SimpleDateFormat("EEEE, dd MMMM yyyy HH:mm:ss", new Locale("id", "ID"));
+        timer = new Timer(1000, e -> {
+            lblDateTime.setText(sdf.format(new Date()));
+        });
+        timer.start();
+    }
+
+    private JPanel createDataCard(String title, String value, Color bgColor, Color textColor) {
+        JPanel card = new JPanel(new BorderLayout(10,10));
+        card.setPreferredSize(new Dimension(275, 129)); // Ukuran seperti di gambar Anda
+        card.setBackground(bgColor);
+        card.setBorder(BorderFactory.createCompoundBorder(
+                BorderFactory.createLineBorder(textColor.darker(), 1), // Border luar
+                new EmptyBorder(15, 15, 15, 15) // Padding dalam
+        ));
+
+        JLabel lblTitle = new JLabel(title);
+        lblTitle.setFont(new Font("Arial", Font.BOLD, 16));
+        lblTitle.setForeground(textColor);
+        lblTitle.setHorizontalAlignment(SwingConstants.CENTER);
+
+        JLabel lblValue = new JLabel(value);
+        lblValue.setFont(new Font("Arial", Font.BOLD, 48)); // Ukuran besar untuk angka
+        lblValue.setForeground(textColor);
+        lblValue.setHorizontalAlignment(SwingConstants.CENTER);
+
+        card.add(lblTitle, BorderLayout.NORTH);
+        card.add(lblValue, BorderLayout.CENTER);
+
+        return card;
+    }
 
 }
