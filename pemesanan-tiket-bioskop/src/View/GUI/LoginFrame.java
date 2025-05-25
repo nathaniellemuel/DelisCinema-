@@ -37,7 +37,7 @@ public class LoginFrame extends JFrame {
         leftPanel.setLayout(new BoxLayout(leftPanel, BoxLayout.Y_AXIS));
 
         ImageIcon rawIcon = new ImageIcon(getClass().getResource("/Logo.png"));
-        Image img = rawIcon.getImage().getScaledInstance(250, 150, Image.SCALE_SMOOTH);
+        Image img = rawIcon.getImage().getScaledInstance(250, 100, Image.SCALE_SMOOTH);
         ImageIcon logoImg = new ImageIcon(img);
         JLabel logo = new JLabel(logoImg);
 

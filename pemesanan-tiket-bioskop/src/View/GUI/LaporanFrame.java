@@ -6,6 +6,7 @@ import Model.Transaksi;
 import Model.User;
 import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
+import javax.swing.table.TableColumn; // Import TableColumn
 import java.awt.*;
 import java.text.NumberFormat;
 import java.time.YearMonth;
@@ -16,12 +17,12 @@ import java.util.Map;
 
 public class LaporanFrame extends JFrame {
     private User currentUser;
-    private UserController userController;
+    private UserController userController; // Instance UserController yang sudah ada
+    private JTable table; // Tambahkan JTable sebagai field agar bisa diakses di updateTableData
 
     public LaporanFrame(User user) {
         this.currentUser = user;
-        this.userController = new UserController();
-
+        this.userController = new UserController(); // Inisialisasi sekali di konstruktor
 
         if (this.currentUser == null) {
             JOptionPane.showMessageDialog(null, "Anda belum login!");
@@ -33,12 +34,11 @@ public class LaporanFrame extends JFrame {
         setTitle("Laporan - Delis Cinema");
         ImageIcon appIcon = new ImageIcon(getClass().getResource("/Desktop.png"));
         setIconImage(appIcon.getImage());
-        setIconImage(appIcon.getImage());
         setExtendedState(JFrame.MAXIMIZED_BOTH);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setLayout(new BorderLayout());
 
-        // Sidebar
+        // Sidebar (kode sidebar tetap sama)
         JPanel sidebar = new JPanel();
         sidebar.setBackground(Color.decode("#EB1C24"));
         sidebar.setPreferredSize(new Dimension(250, getHeight()));
@@ -70,58 +70,65 @@ public class LaporanFrame extends JFrame {
             dispose();
             new AdminDashboard(currentUser).setVisible(true);
         });
-
         btnFilm.addActionListener(e -> {
             dispose();
             new FilmFrame(currentUser).setVisible(true);
         });
-
         btnJadwal.addActionListener(e -> {
             dispose();
             new JadwalFrame(currentUser).setVisible(true);
         });
-
         btnLaporan.addActionListener(e -> {
             JOptionPane.showMessageDialog(this, "Kamu sudah di halaman Laporan.");
         });
-
         btnLogout.addActionListener(e -> {
-            userController.logout();
+            userController.logout(); // Menggunakan instance userController
             dispose();
             new LoginFrame().setVisible(true);
         });
-
         add(sidebar, BorderLayout.WEST);
-//        add(contentPanel, BorderLayout.CENTER);
 
         // Konten utama
         JPanel contentPanel = new JPanel(new BorderLayout());
+        contentPanel.setBorder(BorderFactory.createEmptyBorder(10,10,10,10));
+
 
         String[] opsiSort = {"Transaksi Terbaru", "Pendapatan per Bulan", "Pendapatan per Studio", "Pendapatan per Film", "Film Paling Banyak Ditonton"};
         JComboBox<String> filterCombo = new JComboBox<>(opsiSort);
         filterCombo.setFont(new Font("Poppins", Font.PLAIN, 14));
-        filterCombo.setPreferredSize(new Dimension(300, 30));
-        contentPanel.add(filterCombo, BorderLayout.NORTH);
+        // filterCombo.setPreferredSize(new Dimension(300, 30)); // Ukuran bisa diatur oleh layout manager
+
+        JPanel topFilterPanel = new JPanel(new FlowLayout(FlowLayout.LEFT)); // Panel untuk ComboBox
+        topFilterPanel.add(new JLabel("Tampilkan Laporan: "));
+        topFilterPanel.add(filterCombo);
+        contentPanel.add(topFilterPanel, BorderLayout.NORTH);
+
 
         DefaultTableModel tableModel = new DefaultTableModel();
-        JTable table = new JTable(tableModel);
-        JScrollPane scrollPane = new JScrollPane(table);
+        this.table = new JTable(tableModel); // Inisialisasi field table
+        this.table.setFont(new Font("Poppins", Font.PLAIN, 13));
+        this.table.setRowHeight(25);
+        this.table.getTableHeader().setFont(new Font("Poppins", Font.BOLD, 14));
+        // Optional: Matikan auto resize jika ingin lebar kolom benar-benar fixed
+        // this.table.setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
+
+
+        JScrollPane scrollPane = new JScrollPane(this.table);
         contentPanel.add(scrollPane, BorderLayout.CENTER);
 
         add(contentPanel, BorderLayout.CENTER);
 
         TransaksiController tc = new TransaksiController();
-        updateTableData("Transaksi Terbaru", tableModel, tc);
+        updateTableData((String) filterCombo.getSelectedItem(), tableModel, tc); // Load data awal dengan pilihan pertama
 
         filterCombo.addActionListener(e -> {
             String selected = (String) filterCombo.getSelectedItem();
             updateTableData(selected, tableModel, tc);
         });
-
-
     }
 
     private JButton createSidebarButtonWithIcon(String text, String iconPath) {
+        // (kode createSidebarButtonWithIcon tetap sama)
         ImageIcon icon = null;
         try {
             java.net.URL resource = getClass().getResource(iconPath);
@@ -154,8 +161,11 @@ public class LaporanFrame extends JFrame {
         model.setColumnCount(0);
 
         NumberFormat rupiahFormat = NumberFormat.getCurrencyInstance(new Locale("id", "ID"));
-        DateTimeFormatter waktuBeliFormat = DateTimeFormatter.ofPattern("EEEE, d MMMM yyyy HH:mm", new Locale("id", "ID"));
-        DateTimeFormatter bulanFormat = DateTimeFormatter.ofPattern("MMMM yyyy", new Locale("id", "ID"));
+        // Menggunakan uuuu untuk tahun agar lebih konsisten, terutama di sekitar pergantian tahun
+        DateTimeFormatter waktuBeliFormat = DateTimeFormatter.ofPattern("EEEE, d MMMM uuuu HH:mm", new Locale("id", "ID"));
+        DateTimeFormatter bulanFormat = DateTimeFormatter.ofPattern("MMMM uuuu", new Locale("id", "ID"));
+
+        TableColumn column; // Deklarasikan untuk digunakan kembali
 
         switch (mode) {
             case "Transaksi Terbaru":
@@ -163,19 +173,41 @@ public class LaporanFrame extends JFrame {
                 int no1 = 1;
                 for (Transaksi t : tc.getAllTransaksi()) {
                     String kursiGabung = String.join(", ", t.getKursiDipesan());
-                    String username = new UserController().getUsernameById(t.getIdUser());
-//                    String jadwalJam = t.getJam().toString();
+                    // Menggunakan instance userController yang sudah ada
+                    String username = this.userController.getUsernameById(t.getIdUser());
                     String waktuBeli = t.getWaktuBeli().format(waktuBeliFormat);
                     String totalBayar = rupiahFormat.format(t.getTotalBayar());
 
                     model.addRow(new Object[]{
                             no1++,
                             username,
-                            t.getDeskripsiJadwal() + " ",
+                            t.getDeskripsiJadwal(), // Menghilangkan " " tambahan jika tidak perlu
                             waktuBeli,
                             kursiGabung,
                             totalBayar
                     });
+                }
+                // Atur lebar kolom setelah data dan kolom di-set
+                if (table.getColumnCount() > 0) { // Pastikan kolom sudah ada
+                    column = table.getColumnModel().getColumn(0); // No
+                    column.setPreferredWidth(40);
+                    column.setMinWidth(30);
+                    column.setMaxWidth(60);
+
+                    column = table.getColumnModel().getColumn(1); // Username
+                    column.setPreferredWidth(120);
+
+                    column = table.getColumnModel().getColumn(2); // Jadwal
+                    column.setPreferredWidth(280); // Jadwal bisa panjang
+
+                    column = table.getColumnModel().getColumn(3); // Waktu Beli
+                    column.setPreferredWidth(200);
+
+                    column = table.getColumnModel().getColumn(4); // Kursi
+                    column.setPreferredWidth(100);
+
+                    column = table.getColumnModel().getColumn(5); // Total Bayar
+                    column.setPreferredWidth(130);
                 }
                 break;
 
@@ -183,9 +215,24 @@ public class LaporanFrame extends JFrame {
                 model.setColumnIdentifiers(new Object[]{"No", "Bulan", "Pendapatan"});
                 int no2 = 1;
                 for (Map.Entry<String, Integer> entry : tc.getPendapatanPerBulan().entrySet()) {
-                    String bulan = YearMonth.parse(entry.getKey()).format(bulanFormat); // pastikan key = 2025-05
+                    String bulanTahun = "";
+                    try {
+                        // Pastikan key dari tc.getPendapatanPerBulan() adalah format "yyyy-MM"
+                        bulanTahun = YearMonth.parse(entry.getKey()).format(bulanFormat);
+                    } catch (Exception e) {
+                        System.err.println("Format bulan tidak valid: " + entry.getKey());
+                        bulanTahun = entry.getKey(); // Tampilkan key asli jika parse gagal
+                    }
                     String pendapatan = rupiahFormat.format(entry.getValue());
-                    model.addRow(new Object[]{no2++, bulan, pendapatan});
+                    model.addRow(new Object[]{no2++, bulanTahun, pendapatan});
+                }
+                if (table.getColumnCount() > 0) {
+                    column = table.getColumnModel().getColumn(0); // No
+                    column.setPreferredWidth(50); column.setMinWidth(40); column.setMaxWidth(60);
+                    column = table.getColumnModel().getColumn(1); // Bulan
+                    column.setPreferredWidth(200);
+                    column = table.getColumnModel().getColumn(2); // Pendapatan
+                    column.setPreferredWidth(200);
                 }
                 break;
 
@@ -196,6 +243,14 @@ public class LaporanFrame extends JFrame {
                     String pendapatan = rupiahFormat.format(entry.getValue());
                     model.addRow(new Object[]{no3++, entry.getKey(), pendapatan});
                 }
+                if (table.getColumnCount() > 0) {
+                    column = table.getColumnModel().getColumn(0); // No
+                    column.setPreferredWidth(50); column.setMinWidth(40); column.setMaxWidth(60);
+                    column = table.getColumnModel().getColumn(1); // Studio
+                    column.setPreferredWidth(250);
+                    column = table.getColumnModel().getColumn(2); // Pendapatan
+                    column.setPreferredWidth(200);
+                }
                 break;
 
             case "Pendapatan per Film":
@@ -205,6 +260,14 @@ public class LaporanFrame extends JFrame {
                     String pendapatan = rupiahFormat.format(entry.getValue());
                     model.addRow(new Object[]{no4++, entry.getKey(), pendapatan});
                 }
+                if (table.getColumnCount() > 0) {
+                    column = table.getColumnModel().getColumn(0); // No
+                    column.setPreferredWidth(50); column.setMinWidth(40); column.setMaxWidth(60);
+                    column = table.getColumnModel().getColumn(1); // Film
+                    column.setPreferredWidth(300); // Judul film bisa panjang
+                    column = table.getColumnModel().getColumn(2); // Pendapatan
+                    column.setPreferredWidth(200);
+                }
                 break;
 
             case "Film Paling Banyak Ditonton":
@@ -213,10 +276,15 @@ public class LaporanFrame extends JFrame {
                 for (Map.Entry<String, Integer> entry : tc.getFilmPalingBanyakDitonton().entrySet()) {
                     model.addRow(new Object[]{no5++, entry.getKey(), entry.getValue()});
                 }
+                if (table.getColumnCount() > 0) {
+                    column = table.getColumnModel().getColumn(0); // No
+                    column.setPreferredWidth(50); column.setMinWidth(40); column.setMaxWidth(60);
+                    column = table.getColumnModel().getColumn(1); // Film
+                    column.setPreferredWidth(300); // Judul film bisa panjang
+                    column = table.getColumnModel().getColumn(2); // Jumlah Penonton
+                    column.setPreferredWidth(150);
+                }
                 break;
         }
     }
-
-
-
 }

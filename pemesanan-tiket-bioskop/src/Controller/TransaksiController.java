@@ -21,7 +21,7 @@ public class TransaksiController {
                 "JOIN jadwal j ON t.id_jadwal = j.id_jadwal " +
                 "JOIN film f ON j.id_film = f.id_film " +
                 "JOIN studio s ON j.id_studio = s.id_studio " +
-                "ORDER BY t.waktu_beli DESC";
+                "ORDER BY t.waktu_beli ASC";
 
         try (Connection conn = DBUtil.getConnection();
              Statement stmt = conn.createStatement();
