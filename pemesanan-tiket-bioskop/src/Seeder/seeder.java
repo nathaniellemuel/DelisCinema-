@@ -12,7 +12,7 @@ import java.util.Set;
 
 public class seeder {
     public static void main(String[] args) {
-        seedTransaksi();
+//        seedTransaksi();
     }
 
     public static void seedUser() {

@@ -33,6 +33,9 @@ public class SummaryFrame extends JFrame {
         int height = screenSize.height;
 
         setTitle("Summary");
+        ImageIcon appIcon = new ImageIcon(getClass().getResource("/Desktop.png"));
+        setIconImage(appIcon.getImage());
+        setIconImage(appIcon.getImage());
         setExtendedState(JFrame.MAXIMIZED_BOTH);
         setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
         setLayout(null);
