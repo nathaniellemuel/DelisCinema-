@@ -46,11 +46,14 @@ public class SummaryFrame extends JFrame {
         topPanel.setBounds(0, 0, width, 100);
         add(topPanel);
 
-        // Back button (X)
-        JButton btnBack = new JButton("X");
+        // Back button (icon)
+        ImageIcon kembaliIcon = new ImageIcon(getClass().getResource("/kembali.png"));
+        JButton btnBack = new JButton(kembaliIcon);
         btnBack.setBounds(24, 24, 52, 52);
-        btnBack.setFont(new Font("Arial", Font.BOLD, 18));
         btnBack.setFocusPainted(false);
+        btnBack.setContentAreaFilled(false);
+        btnBack.setBorderPainted(false);
+        btnBack.setOpaque(false);
         btnBack.addActionListener(e -> {
             SoundUtil.playSound("/exit.wav");
             frameSebelumnya.setVisible(true);

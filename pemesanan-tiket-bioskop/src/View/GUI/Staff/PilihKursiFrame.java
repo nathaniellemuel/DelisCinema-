@@ -72,10 +72,14 @@ public class PilihKursiFrame extends JFrame {
         panelAtas.setBounds(0, 0, width, 80);
         add(panelAtas);
 
-        JButton btnBack = new JButton("X");
+        // Back button (icon)
+        ImageIcon kembaliIcon = new ImageIcon(getClass().getResource("/kembali.png"));
+        JButton btnBack = new JButton(kembaliIcon);
         btnBack.setBounds(15, 15, 50, 50);
-        btnBack.setFont(new Font("Arial", Font.BOLD, 18));
         btnBack.setFocusPainted(false);
+        btnBack.setContentAreaFilled(false);
+        btnBack.setBorderPainted(false);
+        btnBack.setOpaque(false);
         btnBack.addActionListener(e -> {
             SoundUtil.playSound("/exit.wav");
             frameSebelumnya.setVisible(true);
@@ -140,7 +144,7 @@ public class PilihKursiFrame extends JFrame {
 
         JLabel soldColor = new JLabel();
         soldColor.setOpaque(true);
-        soldColor.setBackground(Color.YELLOW);
+        soldColor.setBackground(Color.ORANGE);
         soldColor.setBounds(100, 300, 40, 40);
         add(soldColor);
 
@@ -173,7 +177,7 @@ public class PilihKursiFrame extends JFrame {
                 btnKursi.setPreferredSize(new Dimension(80, 80));
 
                 if (kursiTerpesan.contains(kodeKursi)) {
-                    btnKursi.setBackground(Color.YELLOW);
+                    btnKursi.setBackground(Color.ORANGE);
                     btnKursi.setForeground(Color.BLACK);
                     btnKursi.setEnabled(false);
                 } else {

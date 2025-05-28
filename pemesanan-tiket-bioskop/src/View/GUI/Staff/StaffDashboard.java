@@ -12,10 +12,18 @@ import View.GUI.Staff.PilihKursiFrame;
 import javax.swing.*;
 import java.awt.*;
 import java.text.SimpleDateFormat;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.Date;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.Timer;
+import java.util.TimerTask;
 
 public class StaffDashboard extends JFrame {
     private JLabel dateTimeLabel;
@@ -23,6 +31,9 @@ public class StaffDashboard extends JFrame {
     private JButton selectedTimeButton = null; // Tombol jam yang dipilih
     private JButton pilihKursi; // ubah ini jadi variabel global supaya bisa diakses
     private Jadwal selectedJadwal = null; // Tambahkan variabel untuk menyimpan jadwal yang dipilih
+    private List<JButton> allTimeButtons = new ArrayList<>(); // Store all time buttons for updating
+    private List<Jadwal> allJadwals = new ArrayList<>(); // Store all jadwals corresponding to buttons
+    private Set<JButton> disabledButtons = new HashSet<>(); // Track which buttons are disabled
 
     public StaffDashboard(User user) {
         if (user == null) {
@@ -252,7 +263,16 @@ public class StaffDashboard extends JFrame {
             timeButton.setPreferredSize(new Dimension(80, 30));
             timeButton.setFont(new Font("Monospaced", Font.BOLD, 14));
 
+            // Store button and jadwal for later reference
+            allTimeButtons.add(timeButton);
+            allJadwals.add(jadwal);
+
             timeButton.addActionListener(e -> {
+                // Check if button is disabled based on time without changing appearance
+                if (disabledButtons.contains(timeButton)) {
+                    return;
+                }
+
                 // Play sound when time button is clicked
                 SoundUtil.playSound("/click-sound.wav");
 
@@ -329,9 +349,58 @@ public class StaffDashboard extends JFrame {
                 SwingUtilities.invokeLater(() -> {
                     String time = new SimpleDateFormat("EEEE, dd MMMM yyyy HH:mm:ss").format(new Date());
                     dateTimeLabel.setText(time);
+
+                    // Update button states based on current time
+                    updateButtonStates();
                 });
             }
         }, 0, 1000);
+    }
+
+    private void updateButtonStates() {
+        LocalTime currentTime = LocalTime.now();
+
+        for (int i = 0; i < allTimeButtons.size(); i++) {
+            JButton button = allTimeButtons.get(i);
+            Jadwal jadwal = allJadwals.get(i);
+
+            // Get film start time
+            LocalTime filmStartTime = jadwal.getJam();
+
+            // Calculate film end time (start time + duration - 1 minute)
+            LocalTime filmEndTime = filmStartTime.plusMinutes(jadwal.getFilm().getDurasi() - 1);
+
+            // Check if current time has passed the film end time
+            boolean shouldDisable = currentTime.isAfter(filmEndTime);
+
+            if (shouldDisable) {
+                // Add to disabled set without changing button appearance
+                disabledButtons.add(button);
+
+                // If this was the selected button, clear the selection
+                if (selectedTimeButton == button) {
+                    // Reset selection
+                    button.setBackground(null);
+                    button.setForeground(Color.BLACK);
+                    selectedTimeButton = null;
+                    selectedJadwal = null;
+
+                    // Clear summary
+                    selectedDateLabel.setText("");
+                    selectedFilmLabel.setText("");
+                    selectedStudioLabel.setText("");
+                    selectedTimeLabel.setText("");
+
+                    // Reset PILIH KURSI button
+                    pilihKursi.setBackground(Color.DARK_GRAY);
+                    pilihKursi.setForeground(Color.WHITE);
+                    pilihKursi.setEnabled(false);
+                }
+            } else {
+                // Remove from disabled set if time hasn't passed
+                disabledButtons.remove(button);
+            }
+        }
     }
 
     private void updateMuteButtonIcon(JButton muteButton) {
