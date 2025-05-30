@@ -46,12 +46,12 @@ public class LoginFrame extends JFrame {
 
 
         JLabel welcomeText = new JLabel("SELAMAT DATANG KEMBALI!", SwingConstants.CENTER);
-        welcomeText.setFont(new Font("Poppins", Font.BOLD, 14));
+        welcomeText.setFont(new Font("Arial", Font.BOLD, 14));
         welcomeText.setForeground(Color.WHITE);
         welcomeText.setAlignmentX(Component.CENTER_ALIGNMENT);
 
         JLabel subText = new JLabel("<html><center>Silahkan login terlebih dahulu<br/>untuk verifikasi diri anda.</center></html>", SwingConstants.CENTER);
-        subText.setFont(new Font("Poppins", Font.PLAIN, 12));
+        subText.setFont(new Font("Arial", Font.PLAIN, 12));
         subText.setForeground(Color.WHITE);
         subText.setAlignmentX(Component.CENTER_ALIGNMENT);
 
@@ -70,7 +70,7 @@ public class LoginFrame extends JFrame {
         GridBagConstraints gbc = new GridBagConstraints();
 
         JLabel lblLogin = new JLabel("LOGIN");
-        lblLogin.setFont(new Font("Poppins", Font.BOLD, 22));
+        lblLogin.setFont(new Font("Arial", Font.BOLD, 22));
         gbc.gridx = 0;
         gbc.gridy = 0;
         gbc.gridwidth = 2;

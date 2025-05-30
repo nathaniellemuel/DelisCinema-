@@ -55,7 +55,7 @@ public class UserController {
     }
 
     public int getUserCount() {
-        String sql = "SELECT COUNT(*) AS total_users FROM user";
+        String sql = "SELECT COUNT(*) AS total_users FROM user WHERE role = 'staff'";
         try (Connection conn = DBUtil.getConnection();
              Statement stmt = conn.createStatement();
              ResultSet rs = stmt.executeQuery(sql)) {
@@ -67,28 +67,6 @@ public class UserController {
             e.printStackTrace();
         }
         return 0;
-    }
-
-    public List<User> getAllUsers() {
-        List<User> userList = new ArrayList<>();
-        String sql = "SELECT * FROM user ORDER BY username ASC"; // Diurutkan berdasarkan username
-        try (Connection conn = DBUtil.getConnection();
-             Statement stmt = conn.createStatement();
-             ResultSet rs = stmt.executeQuery(sql)) {
-            while (rs.next()) {
-                User user = new User(
-                        rs.getInt("id_user"),
-                        rs.getString("username"),
-                        rs.getString("password"), // Hati-hati mengembalikan password jika tidak dienkripsi
-                        rs.getString("role")
-                );
-                userList.add(user);
-            }
-        } catch (SQLException e) {
-            System.err.println("Error saat mengambil semua pengguna: " + e.getMessage());
-            e.printStackTrace();
-        }
-        return userList;
     }
 
     public void logout() {

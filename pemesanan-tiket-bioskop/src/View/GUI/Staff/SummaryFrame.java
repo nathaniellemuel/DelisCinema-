@@ -5,23 +5,18 @@ import java.awt.*;
 import java.util.Set;
 import java.text.NumberFormat;
 import java.util.Locale;
-import java.sql.Connection;
-import Controller.KursiController;
-import Utility.DBUtil;
 import Utility.SoundUtil;
-import java.sql.PreparedStatement;
-import java.sql.Statement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
 
 public class SummaryFrame extends JFrame {
     private JFrame frameSebelumnya;
     private StaffDashboard dashboardFrame;
+    private int idUser;
 
     public SummaryFrame(JFrame frameSebelumnya, String film, String studio, String date, String time,
                         Set<String> kursiTerpilih, int totalHarga, StaffDashboard dashboardFrame, int idJadwal) {
         this.frameSebelumnya = frameSebelumnya;
         this.dashboardFrame = dashboardFrame;
+        this.idUser = dashboardFrame.getUser().getIdUser();
 
         // Setup currency formatter without decimal places
         NumberFormat currencyFormatter = NumberFormat.getCurrencyInstance(new Locale("in", "ID"));
@@ -203,47 +198,18 @@ public class SummaryFrame extends JFrame {
         // Inside SummaryFrame constructor, replace the existing btnSelesai action listener
         btnSelesai.addActionListener(e -> {
             SoundUtil.playSound("/selesai-click.wav");
-            Connection conn = DBUtil.getConnection();
-
-            try {
-                conn.setAutoCommit(false);  // Start transaction
-
-                // First create the transaction
-                String transQuery = "INSERT INTO transaksi (id_user, id_jadwal, waktu_beli, total_kursi, total_bayar) VALUES (?, ?, NOW(), ?, ?)";
-                PreparedStatement transStmt = conn.prepareStatement(transQuery, Statement.RETURN_GENERATED_KEYS);
-                transStmt.setInt(1, 2); // Assuming staff user_id = 2
-                transStmt.setInt(2, idJadwal);
-                transStmt.setInt(3, kursiTerpilih.size());
-                transStmt.setInt(4, totalHarga);
-                transStmt.executeUpdate();
-
-                // Get the generated transaction ID
-                ResultSet rs = transStmt.getGeneratedKeys();
-                if (rs.next()) {
-                    int idTransaksi = rs.getInt(1);
-
-                    // Now save the booked seats with the valid transaction ID
-                    KursiController kursiController = new KursiController(conn);
-                    boolean success = kursiController.saveBookedSeats(idJadwal, idTransaksi, kursiTerpilih);
-
-                    if (success) {
-                        conn.commit();
-                        dashboardFrame.setVisible(true);
-                        dispose();
-                    } else {
-                        conn.rollback();
-                        JOptionPane.showMessageDialog(this, "Failed to save seat bookings!", "Error", JOptionPane.ERROR_MESSAGE);
-                    }
-                }
-
-                conn.setAutoCommit(true);
-            } catch (SQLException ex) {
-                try {
-                    conn.rollback();
-                } catch (SQLException rollbackEx) {
-                    rollbackEx.printStackTrace();
-                }
-                JOptionPane.showMessageDialog(this, "Database error: " + ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+            Controller.TransaksiController transaksiController = new Controller.TransaksiController();
+            boolean success = transaksiController.prosesTransaksi(
+                    idUser,
+                    idJadwal,
+                    kursiTerpilih,
+                    totalHarga
+            );
+            if (success) {
+                dashboardFrame.setVisible(true);
+                dispose();
+            } else {
+                JOptionPane.showMessageDialog(this, "Failed to save seat bookings!", "Error", JOptionPane.ERROR_MESSAGE);
             }
         });
 

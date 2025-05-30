@@ -5,10 +5,7 @@ import Utility.DBUtil;
 
 import java.sql.*;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 public class TransaksiController {
     public List<Transaksi> getAllTransaksi() {
@@ -119,4 +116,47 @@ public class TransaksiController {
         } catch (SQLException e) { e.printStackTrace(); }
         return map;
     }
+
+    public boolean prosesTransaksi(int idUser, int idJadwal, Set<String> kursiTerpilih, int totalHarga) {
+        Connection conn = null;
+        try {
+            conn = DBUtil.getConnection();
+            conn.setAutoCommit(false);
+
+            String transQuery = "INSERT INTO transaksi (id_user, id_jadwal, waktu_beli, total_kursi, total_bayar) VALUES (?, ?, NOW(), ?, ?)";
+            PreparedStatement transStmt = conn.prepareStatement(transQuery, Statement.RETURN_GENERATED_KEYS);
+            transStmt.setInt(1, idUser);
+            transStmt.setInt(2, idJadwal);
+            transStmt.setInt(3, kursiTerpilih.size());
+            transStmt.setInt(4, totalHarga);
+            transStmt.executeUpdate();
+
+            ResultSet rs = transStmt.getGeneratedKeys();
+            if (rs.next()) {
+                int idTransaksi = rs.getInt(1);
+                KursiController kursiController = new KursiController(conn);
+                boolean success = kursiController.saveBookedSeats(idJadwal, idTransaksi, kursiTerpilih);
+                if (success) {
+                    conn.commit();
+                    return true;
+                } else {
+                    conn.rollback();
+                    return false;
+                }
+            }
+            conn.rollback();
+        } catch (SQLException ex) {
+            if (conn != null) {
+                try { conn.rollback(); } catch (SQLException ignore) {}
+            }
+            ex.printStackTrace();
+        } finally {
+            if (conn != null) {
+                try { conn.setAutoCommit(true); } catch (SQLException ignore) {}
+            }
+        }
+        return false;
+    }
+
+
 }

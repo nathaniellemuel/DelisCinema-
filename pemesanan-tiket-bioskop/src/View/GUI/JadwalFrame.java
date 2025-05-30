@@ -294,7 +294,7 @@ public class JadwalFrame extends JFrame {
         btn.setIconTextGap(10);
         btn.setMaximumSize(new Dimension(Integer.MAX_VALUE, 50));
         btn.setAlignmentX(Component.CENTER_ALIGNMENT);
-        btn.setFont(new Font("Poppins", Font.PLAIN, 16));
+        btn.setFont(new Font("Arial", Font.PLAIN, 16));
         return btn;
     }
 
@@ -314,7 +314,7 @@ public class JadwalFrame extends JFrame {
 
         // Label judul film
         JLabel lblJudul = new JLabel(sample.getFilm().getJudul());
-        lblJudul.setFont(new Font("Poppins", Font.BOLD, 18));
+        lblJudul.setFont(new Font("Arial", Font.BOLD, 18));
         lblJudul.setAlignmentX(Component.LEFT_ALIGNMENT);
         lblJudul.setHorizontalAlignment(SwingConstants.LEFT);
 
@@ -327,7 +327,7 @@ public class JadwalFrame extends JFrame {
         for (Jadwal jadwal : group) {
             String jamStr = jadwal.getJam().toString().substring(0, 5);
             JButton btnJam = new JButton(jamStr);
-            btnJam.setFont(new Font("Poppins", Font.PLAIN, 14));
+            btnJam.setFont(new Font("Arial", Font.PLAIN, 14));
             btnJam.setPreferredSize(new Dimension(60, 25));
             btnJam.setBackground(Color.WHITE);
             btnJam.setBorder(BorderFactory.createLineBorder(Color.DARK_GRAY));
@@ -411,10 +411,10 @@ public class JadwalFrame extends JFrame {
 
         JLabel lblInfo = new JLabel(sample.getFilm().getGenre() + " / " +
                 sample.getFilm().getDurasi() + " Minutes");
-        lblInfo.setFont(new Font("Poppins", Font.PLAIN, 14));
+        lblInfo.setFont(new Font("Arial", Font.PLAIN, 14));
 
         JLabel lblStudio = new JLabel("STUDIO " + sample.getStudio().getNamaStudio().toUpperCase());
-        lblStudio.setFont(new Font("Poppins", Font.BOLD, 14));
+        lblStudio.setFont(new Font("Arial", Font.BOLD, 14));
 
         JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT, 5, 0));
         buttonPanel.setOpaque(false);

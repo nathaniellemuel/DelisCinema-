@@ -92,7 +92,6 @@ public class JadwalController {
         }
     }
 
-
     public boolean hapusJadwal(int idJadwal) {
         String sql = "DELETE FROM jadwal WHERE id_jadwal = ?";
 
@@ -165,6 +164,7 @@ public class JadwalController {
 
         return grouped;
     }
+
     public List<Jadwal> getJadwalByFilmId(int filmId) {
         List<Jadwal> list = new ArrayList<>();
         String sql = """

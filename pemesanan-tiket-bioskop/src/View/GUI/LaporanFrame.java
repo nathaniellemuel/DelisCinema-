@@ -95,7 +95,7 @@ public class LaporanFrame extends JFrame {
 
         String[] opsiSort = {"Transaksi Terbaru", "Pendapatan per Bulan", "Pendapatan per Studio", "Pendapatan per Film", "Film Paling Banyak Ditonton"};
         JComboBox<String> filterCombo = new JComboBox<>(opsiSort);
-        filterCombo.setFont(new Font("Poppins", Font.PLAIN, 14));
+        filterCombo.setFont(new Font("Arial", Font.PLAIN, 14));
         // filterCombo.setPreferredSize(new Dimension(300, 30)); // Ukuran bisa diatur oleh layout manager
 
         JPanel topFilterPanel = new JPanel(new FlowLayout(FlowLayout.LEFT)); // Panel untuk ComboBox
@@ -106,9 +106,9 @@ public class LaporanFrame extends JFrame {
 
         DefaultTableModel tableModel = new DefaultTableModel();
         this.table = new JTable(tableModel); // Inisialisasi field table
-        this.table.setFont(new Font("Poppins", Font.PLAIN, 13));
+        this.table.setFont(new Font("Arial", Font.PLAIN, 13));
         this.table.setRowHeight(25);
-        this.table.getTableHeader().setFont(new Font("Poppins", Font.BOLD, 14));
+        this.table.getTableHeader().setFont(new Font("Arial", Font.BOLD, 14));
         // Optional: Matikan auto resize jika ingin lebar kolom benar-benar fixed
         // this.table.setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
 
@@ -152,7 +152,7 @@ public class LaporanFrame extends JFrame {
         btn.setIconTextGap(10);
         btn.setMaximumSize(new Dimension(Integer.MAX_VALUE, 50));
         btn.setAlignmentX(Component.CENTER_ALIGNMENT);
-        btn.setFont(new Font("Poppins", Font.PLAIN, 16));
+        btn.setFont(new Font("Arial", Font.PLAIN, 16));
         return btn;
     }
 
