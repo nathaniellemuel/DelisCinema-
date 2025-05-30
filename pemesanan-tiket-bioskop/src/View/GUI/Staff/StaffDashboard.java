@@ -1,19 +1,13 @@
 package View.GUI.Staff;
 
 import Controller.JadwalController;
-import Model.Film;
-import Model.Jadwal;
-import Model.Studio;
-import Model.User;
+import Model.*;
 import Utility.SoundUtil; // Add this import
 import View.GUI.LoginFrame;
-import View.GUI.Staff.PilihKursiFrame;
 
 import javax.swing.*;
 import java.awt.*;
 import java.text.SimpleDateFormat;
-import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
@@ -34,8 +28,11 @@ public class StaffDashboard extends JFrame {
     private List<JButton> allTimeButtons = new ArrayList<>(); // Store all time buttons for updating
     private List<Jadwal> allJadwals = new ArrayList<>(); // Store all jadwals corresponding to buttons
     private Set<JButton> disabledButtons = new HashSet<>(); // Track which buttons are disabled
+    private User user;
+
 
     public StaffDashboard(User user) {
+        this.user = user;
         if (user == null) {
             JOptionPane.showMessageDialog(null, "Anda belum login!");
             new LoginFrame().setVisible(true);
@@ -413,4 +410,10 @@ public class StaffDashboard extends JFrame {
             muteButton.setToolTipText("Mute");
         }
     }
+
+    public User getUser() {
+        return user;
+    }
+
+
 }

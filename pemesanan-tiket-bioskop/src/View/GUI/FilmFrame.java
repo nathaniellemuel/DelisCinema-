@@ -246,7 +246,7 @@ public class FilmFrame extends JFrame {
         btn.setBackground(Color.decode("#EB1C24"));
         btn.setMaximumSize(new Dimension(Integer.MAX_VALUE, 50));
         btn.setAlignmentX(Component.CENTER_ALIGNMENT);
-        btn.setFont(new Font("Poppins", Font.PLAIN, 16));
+        btn.setFont(new Font("Arial", Font.PLAIN, 16));
         return btn;
     }
 
@@ -326,7 +326,7 @@ public class FilmFrame extends JFrame {
         btn.setIconTextGap(10);
         btn.setMaximumSize(new Dimension(Integer.MAX_VALUE, 50));
         btn.setAlignmentX(Component.CENTER_ALIGNMENT);
-        btn.setFont(new Font("Poppins", Font.PLAIN, 16));
+        btn.setFont(new Font("Arial", Font.PLAIN, 16));
         return btn;
     }
 
