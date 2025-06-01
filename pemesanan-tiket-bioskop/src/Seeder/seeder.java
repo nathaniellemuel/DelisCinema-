@@ -12,7 +12,7 @@ import java.util.Set;
 
 public class seeder {
     public static void main(String[] args) {
-//        seedTransaksi();
+//        seedUser();
     }
 
     public static void seedUser() {
@@ -20,7 +20,7 @@ public class seeder {
             String sql = "INSERT INTO user (username, password, role) VALUES (?, ?, ?)";
             PreparedStatement stmt = conn.prepareStatement(sql);
 
-            stmt.setString(1, "staff");
+            stmt.setString(1, "staff2");
             stmt.setString(2, hashPassword("staff123")); // password di-hash
             stmt.setString(3, "staff");
 

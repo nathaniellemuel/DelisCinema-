@@ -46,7 +46,63 @@ public class JadwalController {
         return list;
     }
 
+    public List<Jadwal> getJadwalHariIni() {
+        List<Jadwal> list = new ArrayList<>();
+        String sql = """
+        SELECT j.*, f.judul, f.durasi, f.genre, f.status AS film_status, s.nama_studio, s.kapasitas
+        FROM jadwal j
+        JOIN film f ON j.id_film = f.id_film
+        JOIN studio s ON j.id_studio = s.id_studio
+        WHERE j.tanggal = ? AND f.status = 'tayang'
+        ORDER BY s.id_studio, f.judul, j.jam
+    """;
+
+        try (Connection conn = DBUtil.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+
+            stmt.setDate(1, java.sql.Date.valueOf(java.time.LocalDate.now()));
+            ResultSet rs = stmt.executeQuery();
+
+            while (rs.next()) {
+                Jadwal jadwal = new Jadwal(
+                        rs.getInt("id_jadwal"),
+                        rs.getInt("id_film"),
+                        rs.getInt("id_studio"),
+                        rs.getDate("tanggal").toLocalDate(),
+                        rs.getTime("jam").toLocalTime(),
+                        rs.getInt("harga")
+                );
+                Film film = new Film(
+                        rs.getInt("id_film"),
+                        rs.getString("judul"),
+                        rs.getInt("durasi"),
+                        rs.getString("genre"),
+                        rs.getString("film_status")
+                );
+                Studio studio = new Studio(
+                        rs.getInt("id_studio"),
+                        rs.getString("nama_studio"),
+                        rs.getInt("kapasitas")
+                );
+                jadwal.setFilm(film);
+                jadwal.setStudio(studio);
+                list.add(jadwal);
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return list;
+    }
+
     public boolean tambahJadwal(Jadwal jadwal) {
+
+        if (jadwal.getTanggal().isBefore(LocalDate.now())) {
+            JOptionPane.showMessageDialog(null,
+                    "Tanggal jadwal tidak boleh sebelum hari ini!",
+                    "Tanggal Tidak Valid", JOptionPane.WARNING_MESSAGE);
+            return false;
+        }
+
         LocalTime jamDariInputPengguna = jadwal.getJam();
         // Eksplisit set detik dan nanodetik menjadi 0
         LocalTime jamUntukDb = jamDariInputPengguna.withSecond(0).withNano(0); // <--- PERUBAHAN DI SINI
