@@ -108,6 +108,7 @@ public class JadwalFrame extends JFrame {
             JSpinner spTanggal = new JSpinner(new SpinnerDateModel());
             JSpinner.DateEditor de = new JSpinner.DateEditor(spTanggal, "yyyy-MM-dd");
             spTanggal.setEditor(de);
+            spTanggal.setValue(java.sql.Date.valueOf(java.time.LocalDate.now()));
 
             JLabel lblJam = new JLabel("Jam:");
             JSpinner spJam = new JSpinner(new SpinnerDateModel());
@@ -130,7 +131,6 @@ public class JadwalFrame extends JFrame {
                 if (!existing.isEmpty()) {
                     if (!studiosKosong.isEmpty()) {
                         // Film sudah punya jadwal → bisa tambah ke studio lain yang belum terisi
-                        // TAPI juga bisa tambah jam di studio yang sudah pernah dipakai
                         Set<Integer> studioIdsSudahDipakai = new HashSet<>();
                         for (Jadwal j : existing) {
                             Studio s = j.getStudio();
@@ -146,10 +146,10 @@ public class JadwalFrame extends JFrame {
                         }
 
                         cbStudio.setEnabled(true);
-                        spTanggal.setEnabled(false); // Tanggal dikunci
-                        tfHarga.setEnabled(true);
+                        spTanggal.setEnabled(true);
+                        tfHarga.setEnabled(false); // Harga tidak bisa diubah jika sudah ada jadwal
                         Jadwal ref = existing.get(0);
-                        spTanggal.setValue(java.sql.Date.valueOf(ref.getTanggal()));
+                        spTanggal.setValue(java.sql.Date.valueOf(java.time.LocalDate.now()));
                         tfHarga.setText(String.valueOf(ref.getHarga()));
                     } else {
                         // Film sudah punya jadwal dan semua studio sudah terisi → hanya bisa tambah jam di studio yang sama
@@ -163,8 +163,8 @@ public class JadwalFrame extends JFrame {
                         }
 
                         cbStudio.setEnabled(true);
-                        spTanggal.setValue(java.sql.Date.valueOf(existing.get(0).getTanggal()));
-                        spTanggal.setEnabled(false);
+                        spTanggal.setValue(java.sql.Date.valueOf(java.time.LocalDate.now()));
+                        spTanggal.setEnabled(true);
                         tfHarga.setText(String.valueOf(existing.get(0).getHarga()));
                         tfHarga.setEnabled(false);
                     }
@@ -175,6 +175,7 @@ public class JadwalFrame extends JFrame {
                     }
                     cbStudio.setEnabled(true);
                     spTanggal.setEnabled(true);
+                    spTanggal.setValue(java.sql.Date.valueOf(java.time.LocalDate.now()));
                     tfHarga.setEnabled(true);
                 }
 

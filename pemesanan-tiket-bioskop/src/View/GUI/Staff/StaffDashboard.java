@@ -10,14 +10,9 @@ import java.awt.*;
 import java.text.SimpleDateFormat;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.Date;
-import java.util.HashSet;
+import java.util.*;
 import java.util.List;
-import java.util.Set;
 import java.util.Timer;
-import java.util.TimerTask;
 
 public class StaffDashboard extends JFrame {
     private JLabel dateTimeLabel;
@@ -105,27 +100,33 @@ public class StaffDashboard extends JFrame {
         centerPanel.setMaximumSize(new Dimension(600, Integer.MAX_VALUE));
         centerPanel.setAlignmentX(Component.CENTER_ALIGNMENT);
 
-        outerPanel.add(Box.createVerticalStrut(20)); // spasi atas
-        outerPanel.add(centerPanel);
-        outerPanel.add(Box.createVerticalGlue()); // dorong ke tengah
+        outerPanel.add(Box.createVerticalStrut(20)); // top spacing
+
+        JPanel centerWrapper = new JPanel(new FlowLayout(FlowLayout.CENTER, 0, 0));
+        centerWrapper.setOpaque(false);
+        centerPanel.setMaximumSize(new Dimension(700, Integer.MAX_VALUE)); // set max width
+        centerWrapper.add(centerPanel);
+
+        outerPanel.add(centerWrapper);
 
         JScrollPane scrollPane = new JScrollPane(outerPanel);
         add(scrollPane, BorderLayout.CENTER);
 
-        List<List<Jadwal>> sortedJadwalList = new ArrayList<>(JadwalController.getGroupedJadwal().values());
+        List<Jadwal> jadwalHariIni = new JadwalController().getJadwalHariIni();
 
-        // Urutkan berdasarkan nomor studio (dari objek Studio)
-        sortedJadwalList.sort(Comparator.comparingInt(jList -> {
-            if (jList.isEmpty()) return Integer.MAX_VALUE;
-            return jList.get(0).getStudio().getIdStudio(); // pastikan ada method getIdStudio()
-        }));
+        // Group jadwal hari ini berdasarkan film dan studio (mirip groupedJadwal)
+        Map<String, List<Jadwal>> grouped = new LinkedHashMap<>();
+        for (Jadwal j : jadwalHariIni) {
+            String key = j.getFilm().getIdFilm() + "-" + j.getStudio().getIdStudio();
+            grouped.computeIfAbsent(key, k -> new ArrayList<>()).add(j);
+        }
+        List<List<Jadwal>> sortedJadwalList = new ArrayList<>(grouped.values());
 
         for (List<Jadwal> jadwals : sortedJadwalList) {
             if (!jadwals.isEmpty()) {
                 Jadwal j = jadwals.get(0);
                 Film f = j.getFilm();
                 Studio s = j.getStudio();
-
                 addMovieBlock(centerPanel, f.getJudul(), f.getGenre(), f.getDurasi(), s.getNamaStudio(), jadwals);
             }
         }
@@ -232,6 +233,9 @@ public class StaffDashboard extends JFrame {
     private void addMovieBlock(JPanel parent, String title, String genre, int durasi, String studio, List<Jadwal> jadwals){
         JPanel moviePanel = new JPanel();
         moviePanel.setLayout(new BoxLayout(moviePanel, BoxLayout.Y_AXIS));
+        moviePanel.setMaximumSize(new Dimension(700, 130));
+        moviePanel.setPreferredSize(new Dimension(700, 130));
+
         moviePanel.setBorder(BorderFactory.createEmptyBorder(10, 20, 10, 20));
         moviePanel.setBackground(new Color(230, 230, 230));
 
