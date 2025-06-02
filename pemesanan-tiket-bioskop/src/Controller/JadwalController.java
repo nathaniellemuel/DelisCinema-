@@ -175,7 +175,7 @@ public class JadwalController {
         JOIN film f ON j.id_film = f.id_film
         JOIN studio s ON j.id_studio = s.id_studio
         WHERE f.status = 'tayang'
-        ORDER BY s.id_studio, f.judul, j.jam 
+        ORDER BY s.id_studio, f.judul, j.tanggal ASC, j.jam DESC     
         """;
         // Akhir dari perubahan ORDER BY
 
@@ -326,82 +326,80 @@ public class JadwalController {
         }
     }
 
-    public boolean updateJadwalJam(int idJadwal, LocalTime newJam) {
-        // 1. Normalkan newJam agar detiknya selalu :00
-        LocalTime jamUntukDb = newJam.withSecond(0).withNano(0);
-
-        String sqlGetJadwalDetails = "SELECT id_film, id_studio, tanggal FROM jadwal WHERE id_jadwal = ?";
-        String sqlCekDuplikat = "SELECT COUNT(*) FROM jadwal WHERE id_film = ? AND id_studio = ? AND tanggal = ? AND jam = ? AND id_jadwal != ?";
-        String sqlUpdate = "UPDATE jadwal SET jam = ? WHERE id_jadwal = ?";
-
-        try (Connection conn = DBUtil.getConnection()) {
-            int filmId = -1;
-            int studioId = -1;
-            Date tanggalJadwal = null;
-
-            try (PreparedStatement stmtGetDetails = conn.prepareStatement(sqlGetJadwalDetails)) {
-                stmtGetDetails.setInt(1, idJadwal);
-                ResultSet rsDetails = stmtGetDetails.executeQuery();
-                if (rsDetails.next()) {
-                    filmId = rsDetails.getInt("id_film");
-                    studioId = rsDetails.getInt("id_studio");
-                    tanggalJadwal = rsDetails.getDate("tanggal");
-                } else {
-                    JOptionPane.showMessageDialog(null, "Jadwal dengan ID " + idJadwal + " tidak ditemukan untuk diupdate.", "Error", JOptionPane.ERROR_MESSAGE);
-                    return false; // Jadwal tidak ditemukan
-                }
-            }
-
-            //Cek apakah jam baru (jamUntukDb) akan duplikat dengan jadwal LAIN
-            // pada film, studio, dan tanggal yang sama.
-            try (PreparedStatement stmtCek = conn.prepareStatement(sqlCekDuplikat)) {
-                stmtCek.setInt(1, filmId);
-                stmtCek.setInt(2, studioId);
-                stmtCek.setDate(3, tanggalJadwal);
-                stmtCek.setTime(4, Time.valueOf(jamUntukDb));
-                stmtCek.setInt(5, idJadwal);
-
-                ResultSet rsCek = stmtCek.executeQuery();
-                if (rsCek.next() && rsCek.getInt(1) > 0) {
-                    String jamBentrokStr = jamUntukDb.toString();
-                    if (jamBentrokStr.length() > 5) { // Ambil HH:mm saja
-                        jamBentrokStr = jamBentrokStr.substring(0, 5);
-                    }
-                    JOptionPane.showMessageDialog(null,
-                            "Jam tayang " + jamBentrokStr +
-                                    " sudah ada untuk film ini di studio dan tanggal yang sama (pada jadwal lain).",
-                            "Duplikat Jam Tayang", JOptionPane.WARNING_MESSAGE);
-                    return false; // Gagal update karena duplikat/bentrok
-                }
-            }
-
-            try (PreparedStatement stmtUpdate = conn.prepareStatement(sqlUpdate)) {
-                stmtUpdate.setTime(1, Time.valueOf(jamUntukDb)); // Gunakan jam yang sudah dinormalkan
-                stmtUpdate.setInt(2, idJadwal);
-                return stmtUpdate.executeUpdate() > 0;
-            }
-
-        } catch (SQLException e) {
-            e.printStackTrace();
-            JOptionPane.showMessageDialog(null, "Terjadi kesalahan database saat update jam jadwal: " + e.getMessage(), "Error Database", JOptionPane.ERROR_MESSAGE);
-            return false;
-        }
-    }
-
-    public boolean updateJadwalStudioHarga(int idJadwal, int newStudioId, int newHarga) {
-        String sql = "UPDATE jadwal SET id_studio = ?, harga = ? WHERE id_jadwal = ?";
-
+    public boolean hasTransaksiForJadwalIds(List<Integer> jadwalIds) {
+        if (jadwalIds.isEmpty()) return false;
+        String placeholders = String.join(",", Collections.nCopies(jadwalIds.size(), "?"));
+        String sql = "SELECT COUNT(*) FROM transaksi WHERE id_jadwal IN (" + placeholders + ")";
         try (Connection conn = DBUtil.getConnection();
              PreparedStatement stmt = conn.prepareStatement(sql)) {
+            for (int i = 0; i < jadwalIds.size(); i++) {
+                stmt.setInt(i + 1, jadwalIds.get(i));
+            }
+            ResultSet rs = stmt.executeQuery();
+            if (rs.next()) {
+                return rs.getInt(1) > 0;
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return false;
+    }
 
+    public boolean updateJadwalStudioHargaAll(int idFilm, int oldStudioId, int newStudioId, int newHarga) {
+        String sql = "UPDATE jadwal SET id_studio = ?, harga = ? WHERE id_film = ? AND id_studio = ?";
+        try (Connection conn = DBUtil.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
             stmt.setInt(1, newStudioId);
             stmt.setInt(2, newHarga);
-            stmt.setInt(3, idJadwal);
+            stmt.setInt(3, idFilm);
+            stmt.setInt(4, oldStudioId);
             return stmt.executeUpdate() > 0;
-
         } catch (SQLException e) {
             e.printStackTrace();
             return false;
         }
     }
+
+    public boolean updateJadwalJamTanggal(int idJadwal, LocalDate newTanggal, LocalTime newJam) {
+        // Normalize time
+        LocalTime jamUntukDb = newJam.withSecond(0).withNano(0);
+        String sqlGetDetails = "SELECT id_film, id_studio FROM jadwal WHERE id_jadwal = ?";
+        String sqlCekDuplikat = "SELECT COUNT(*) FROM jadwal WHERE id_film = ? AND id_studio = ? AND tanggal = ? AND jam = ? AND id_jadwal != ?";
+        String sqlUpdate = "UPDATE jadwal SET tanggal = ?, jam = ? WHERE id_jadwal = ?";
+
+        try (Connection conn = DBUtil.getConnection()) {
+            int filmId = -1, studioId = -1;
+            try (PreparedStatement stmt = conn.prepareStatement(sqlGetDetails)) {
+                stmt.setInt(1, idJadwal);
+                ResultSet rs = stmt.executeQuery();
+                if (rs.next()) {
+                    filmId = rs.getInt("id_film");
+                    studioId = rs.getInt("id_studio");
+                } else {
+                    return false;
+                }
+            }
+            try (PreparedStatement stmt = conn.prepareStatement(sqlCekDuplikat)) {
+                stmt.setInt(1, filmId);
+                stmt.setInt(2, studioId);
+                stmt.setDate(3, java.sql.Date.valueOf(newTanggal));
+                stmt.setTime(4, java.sql.Time.valueOf(jamUntukDb));
+                stmt.setInt(5, idJadwal);
+                ResultSet rs = stmt.executeQuery();
+                if (rs.next() && rs.getInt(1) > 0) {
+                    return false;
+                }
+            }
+            try (PreparedStatement stmt = conn.prepareStatement(sqlUpdate)) {
+                stmt.setDate(1, java.sql.Date.valueOf(newTanggal));
+                stmt.setTime(2, java.sql.Time.valueOf(jamUntukDb));
+                stmt.setInt(3, idJadwal);
+                return stmt.executeUpdate() > 0;
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
+
 }
