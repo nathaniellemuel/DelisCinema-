@@ -213,9 +213,14 @@ public class FilmFrame extends JFrame {
         btnDelete.setForeground(Color.WHITE);
 
         btnDelete.addActionListener(e -> {
+            Film latestFilm = filmController.getAllFilm().stream()
+                    .filter(f -> f.getIdFilm() == film.getIdFilm())
+                    .findFirst()
+                    .orElse(film);
+
             int konfirmasi = JOptionPane.showConfirmDialog(
                     this,
-                    "Yakin ingin menghapus film \"" + film.getJudul() + "\"?",
+                    "Yakin ingin menghapus film \"" + latestFilm.getJudul() + "\"?",
                     "Konfirmasi Hapus",
                     JOptionPane.YES_NO_OPTION
             );
@@ -293,6 +298,7 @@ public class FilmFrame extends JFrame {
                     new FilmFrame(currentUser).setVisible(true); // refresh
                 } else {
                     JOptionPane.showMessageDialog(this, "Gagal memperbarui film.");
+                    dialog.dispose();
                 }
             } catch (Exception ex) {
                 JOptionPane.showMessageDialog(this, "Input tidak valid: " + ex.getMessage());

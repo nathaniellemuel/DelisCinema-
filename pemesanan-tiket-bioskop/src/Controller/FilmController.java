@@ -93,6 +93,11 @@ public class FilmController {
 
 
     public boolean hapusFilm(int idFilm) {
+        if (hasTransaksiForFilm(idFilm)) {
+            JOptionPane.showMessageDialog(null, "Film cannot be deleted because it already has transaction history.");
+            return false;
+        }
+
         String sqlDeleteJadwal = "DELETE FROM jadwal WHERE id_film = ?";
         String sqlDeleteFilm = "DELETE FROM film WHERE id_film = ?";
         Connection conn = null;
@@ -149,6 +154,10 @@ public class FilmController {
 
 
     public boolean updateFilm(Film film) {
+        if (hasTransaksiForFilm(film.getIdFilm())) {
+            JOptionPane.showMessageDialog(null, "Film cannot be edited because it already has transaction history.");
+            return false;
+        }
         String sqlCekJudul = "SELECT COUNT(*) FROM film WHERE LOWER(judul) = LOWER(?) AND id_film != ?";
         String sqlUpdate = "UPDATE film SET judul = ?, durasi = ?, genre = ?, status = ? WHERE id_film = ?";
 
@@ -237,5 +246,19 @@ public class FilmController {
     }
 
 
+    private boolean hasTransaksiForFilm(int idFilm) {
+        String sql = "SELECT COUNT(*) FROM transaksi t JOIN jadwal j ON t.id_jadwal = j.id_jadwal WHERE j.id_film = ?";
+        try (Connection conn = DBUtil.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+            stmt.setInt(1, idFilm);
+            ResultSet rs = stmt.executeQuery();
+            if (rs.next() && rs.getInt(1) > 0) {
+                return true;
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return false;
+    }
 
 }
