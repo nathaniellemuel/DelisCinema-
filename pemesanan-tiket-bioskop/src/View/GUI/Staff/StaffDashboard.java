@@ -8,6 +8,8 @@ import View.GUI.LoginFrame;
 import javax.swing.*;
 import java.awt.*;
 import java.text.SimpleDateFormat;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
@@ -359,20 +361,21 @@ public class StaffDashboard extends JFrame {
     }
 
     private void updateButtonStates() {
-        LocalTime currentTime = LocalTime.now();
+        LocalDateTime now = LocalDateTime.now();
 
         for (int i = 0; i < allTimeButtons.size(); i++) {
             JButton button = allTimeButtons.get(i);
             Jadwal jadwal = allJadwals.get(i);
 
-            // Get film start time
-            LocalTime filmStartTime = jadwal.getJam();
+            // Get film start time as LocalDateTime (today's date)
+            LocalDate today = LocalDate.now();
+            LocalDateTime filmStartDateTime = LocalDateTime.of(today, jadwal.getJam());
 
             // Calculate film end time (start time + duration - 1 minute)
-            LocalTime filmEndTime = filmStartTime.plusMinutes(jadwal.getFilm().getDurasi() - 1);
+            LocalDateTime filmEndDateTime = filmStartDateTime.plusMinutes(jadwal.getFilm().getDurasi() - 1);
 
             // Check if current time has passed the film end time
-            boolean shouldDisable = currentTime.isAfter(filmEndTime);
+            boolean shouldDisable = now.isAfter(filmEndDateTime);
 
             if (shouldDisable) {
                 // Add to disabled set without changing button appearance
