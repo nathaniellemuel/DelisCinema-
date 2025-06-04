@@ -6,6 +6,7 @@ import java.util.Set;
 import java.text.NumberFormat;
 import java.util.Locale;
 import Utility.SoundUtil;
+import java.awt.print.*;
 
 public class SummaryFrame extends JFrame {
     private JFrame frameSebelumnya;
@@ -180,17 +181,14 @@ public class SummaryFrame extends JFrame {
         // Add action listener to CETAK TIKET button
         btnCetakTiket.addActionListener(e -> {
             SoundUtil.playSound("/click-sound.wav");
-            // Show success message
+            printTicket(film, studio, date, time, kursiTerpilih, totalHarga);
             JOptionPane.showMessageDialog(this,
                     "Tiket berhasil dicetak!",
                     "Sukses",
                     JOptionPane.INFORMATION_MESSAGE);
 
-            // Enable SELESAI button and change its color to red
             btnSelesai.setEnabled(true);
-            btnSelesai.setBackground(new Color(220, 0, 0)); // Red background
-
-            // Optionally disable CETAK TIKET button after printing
+            btnSelesai.setBackground(new Color(220, 0, 0));
             btnCetakTiket.setEnabled(false);
             btnCetakTiket.setBackground(Color.GRAY);
         });
@@ -218,5 +216,70 @@ public class SummaryFrame extends JFrame {
         bottomPanel.add(btnCetakTiket);
 
         setVisible(true);
+    }
+
+    private void printTicket(String film, String studio, String date, String time, Set<String> kursiTerpilih, int totalHarga) {
+        PrinterJob job = PrinterJob.getPrinterJob();
+        job.setJobName("Delis Cinema Ticket");
+
+        // Set custom paper size: 45mm x 150mm (1 point = 1/72 inch)
+        double width = 45 / 25.4 * 72;   // 45mm to points
+        double height = 150 / 25.4 * 72; // 150mm to points
+        Paper paper = new Paper();
+        paper.setSize(width, height);
+        paper.setImageableArea(5, 5, width - 10, height - 10); // small margin
+
+        PageFormat pf = job.defaultPage();
+        pf.setPaper(paper);
+
+        job.setPrintable((graphics, pageFormat, pageIndex) -> {
+            if (pageIndex > 0) return Printable.NO_SUCH_PAGE;
+
+            Graphics2D g2d = (Graphics2D) graphics;
+            int x = (int) pageFormat.getImageableX();
+            int y = (int) pageFormat.getImageableY();
+
+            try {
+                ImageIcon logoIcon = new ImageIcon(getClass().getResource("/LogoBlack.jpg"));
+                Image logo = logoIcon.getImage();
+
+                // Calculate max width and scale height proportionally
+                int maxLogoWidth = (int) pageFormat.getImageableWidth();
+                int originalLogoWidth = logo.getWidth(null);
+                int originalLogoHeight = logo.getHeight(null);
+
+                // Maintain aspect ratio
+                int logoWidth = maxLogoWidth;
+                int logoHeight = (int) ((double) originalLogoHeight / originalLogoWidth * logoWidth);
+
+                int logoX = x + (maxLogoWidth - logoWidth) / 2;
+                g2d.drawImage(logo, logoX, y, logoWidth, logoHeight, null);
+                y += logoHeight + 5;
+            } catch (Exception ex) {
+                // Logo not found, skip drawing
+            }
+
+            g2d.setFont(new Font("Monospaced", Font.BOLD, 10));
+            int lineHeight = g2d.getFontMetrics().getHeight();
+
+            y += lineHeight;
+            g2d.drawString("=== DELIS CINEMA ===", x, y); y += lineHeight;
+            g2d.drawString("Tanggal: " + date, x, y); y += lineHeight;
+            g2d.drawString("Film   : " + film, x, y); y += lineHeight;
+            g2d.drawString("Studio : " + studio, x, y); y += lineHeight;
+            g2d.drawString("Jadwal : " + time, x, y); y += lineHeight;
+            g2d.drawString("Kursi  : " + String.join(", ", kursiTerpilih), x, y); y += lineHeight;
+            g2d.drawString("Total  : Rp. " + totalHarga, x, y); y += lineHeight;
+            y += lineHeight / 2;
+            g2d.drawString("===========================", x, y);
+
+            return Printable.PAGE_EXISTS;
+        }, pf);
+
+        try {
+            job.print();
+        } catch (PrinterException ex) {
+            JOptionPane.showMessageDialog(this, "Failed to print ticket: " + ex.getMessage());
+        }
     }
 }

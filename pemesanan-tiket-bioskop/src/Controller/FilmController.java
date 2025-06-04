@@ -154,90 +154,61 @@ public class FilmController {
 
 
     public boolean updateFilm(Film film) {
-        if (hasTransaksiForFilm(film.getIdFilm())) {
-            JOptionPane.showMessageDialog(null, "Film cannot be edited because it already has transaction history.");
+        boolean hasTransaksi = hasTransaksiForFilm(film.getIdFilm());
+
+        // Fetch current film data
+        String sqlGetFilm = "SELECT judul, durasi, genre, status FROM film WHERE id_film = ?";
+        String currentJudul = null, currentGenre = null, currentStatus = null;
+        int currentDurasi = 0;
+
+        try (Connection conn = DBUtil.getConnection();
+             PreparedStatement stmtGet = conn.prepareStatement(sqlGetFilm)) {
+            stmtGet.setInt(1, film.getIdFilm());
+            ResultSet rs = stmtGet.executeQuery();
+            if (rs.next()) {
+                currentJudul = rs.getString("judul");
+                currentDurasi = rs.getInt("durasi");
+                currentGenre = rs.getString("genre");
+                currentStatus = rs.getString("status");
+            } else {
+                JOptionPane.showMessageDialog(null, "Film dengan ID " + film.getIdFilm() + " tidak ditemukan.", "Error", JOptionPane.ERROR_MESSAGE);
+                return false;
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
             return false;
         }
-        String sqlCekJudul = "SELECT COUNT(*) FROM film WHERE LOWER(judul) = LOWER(?) AND id_film != ?";
+
+        // If there are transactions, only allow status to change, block other fields
+        if (hasTransaksi) {
+            boolean onlyStatusChanged =
+                    film.getJudul().equals(currentJudul) &&
+                            film.getDurasi() == currentDurasi &&
+                            film.getGenre().equals(currentGenre);
+
+            if (!onlyStatusChanged) {
+                JOptionPane.showMessageDialog(null, "Film cannot be edited (except status) because it already has transaction history.");
+                return false;
+            }
+        }
+
+        // Continue with update logic
         String sqlUpdate = "UPDATE film SET judul = ?, durasi = ?, genre = ?, status = ? WHERE id_film = ?";
-
-        try (Connection conn = DBUtil.getConnection()) {
-            // 1. Cek apakah judul baru sudah ada untuk film LAIN
-            try (PreparedStatement cekJudulStmt = conn.prepareStatement(sqlCekJudul)) {
-                cekJudulStmt.setString(1, film.getJudul());
-                cekJudulStmt.setInt(2, film.getIdFilm()); // Pengecualian untuk film yang sedang diedit
-                try (ResultSet rsJudul = cekJudulStmt.executeQuery()) {
-                    if (rsJudul.next() && rsJudul.getInt(1) > 0) {
-                        JOptionPane.showMessageDialog(null, "Judul film '" + film.getJudul() + "' sudah digunakan oleh film lain!", "Duplikat Judul", JOptionPane.WARNING_MESSAGE);
-                        return false; // Judul duplikat dengan film lain
-                    }
-                }
+        try (Connection conn = DBUtil.getConnection();
+             PreparedStatement stmtUpdate = conn.prepareStatement(sqlUpdate)) {
+            stmtUpdate.setString(1, film.getJudul());
+            stmtUpdate.setInt(2, film.getDurasi());
+            stmtUpdate.setString(3, film.getGenre());
+            stmtUpdate.setString(4, film.getStatus());
+            stmtUpdate.setInt(5, film.getIdFilm());
+            int rowsAffected = stmtUpdate.executeUpdate();
+            if (rowsAffected > 0) {
+                JOptionPane.showMessageDialog(null, "Film berhasil diperbarui!", "Sukses", JOptionPane.INFORMATION_MESSAGE);
+                return true;
+            } else {
+                JOptionPane.showMessageDialog(null, "Update film tidak mempengaruhi data apapun. ID mungkin tidak valid atau data sama.", "Informasi", JOptionPane.INFORMATION_MESSAGE);
+                return false;
             }
-
-            // 2. Cek status sebelumnya untuk logika khusus (selesai -> tayang)
-            String sqlCekStatus = "SELECT status FROM film WHERE id_film = ?";
-            try (PreparedStatement cekStatusStmt = conn.prepareStatement(sqlCekStatus)) {
-                cekStatusStmt.setInt(1, film.getIdFilm());
-                ResultSet rsStatus = cekStatusStmt.executeQuery();
-                if (rsStatus.next()) {
-                    String statusLama = rsStatus.getString("status");
-
-                    if (statusLama.equalsIgnoreCase("selesai") && film.getStatus().equalsIgnoreCase("tayang")) {
-                        // Ambil studio yang pernah dipakai film ini
-                        String sqlStudioFilm = """
-                        SELECT DISTINCT id_studio FROM jadwal WHERE id_film = ?
-                        """;
-                        try (PreparedStatement stmtStudio = conn.prepareStatement(sqlStudioFilm)) {
-                            stmtStudio.setInt(1, film.getIdFilm());
-                            ResultSet rsStudio = stmtStudio.executeQuery();
-                            List<Integer> studioIds = new ArrayList<>();
-                            while (rsStudio.next()) {
-                                studioIds.add(rsStudio.getInt("id_studio"));
-                            }
-
-                            for (int idStudio : studioIds) {
-                                // Cek apakah studio ini sedang dipakai film lain yang tayang
-                                String sqlCekTabrakan = """
-                                SELECT f.judul FROM jadwal j
-                                JOIN film f ON j.id_film = f.id_film
-                                WHERE j.id_studio = ? AND f.status = 'tayang' AND f.id_film != ?
-                                """;
-                                try (PreparedStatement stmtCekTabrakan = conn.prepareStatement(sqlCekTabrakan)) {
-                                    stmtCekTabrakan.setInt(1, idStudio);
-                                    stmtCekTabrakan.setInt(2, film.getIdFilm()); // Jangan cek dengan film ini sendiri
-                                    ResultSet rsCekTabrakan = stmtCekTabrakan.executeQuery();
-                                    if (rsCekTabrakan.next()) {
-                                        JOptionPane.showMessageDialog(null, "Gagal update status ke 'tayang'. Studio yang pernah digunakan film ini (ID Studio: " + idStudio + ") sedang dipakai oleh film '" + rsCekTabrakan.getString("judul") + "' yang juga tayang.", "Konflik Jadwal Studio", JOptionPane.WARNING_MESSAGE);
-                                        return false; // Ada konflik studio
-                                    }
-                                }
-                            }
-                        }
-                    }
-                } else {
-                    // Film yang akan diupdate tidak ditemukan (seharusnya tidak terjadi jika alur aplikasi benar)
-                    JOptionPane.showMessageDialog(null, "Film dengan ID " + film.getIdFilm() + " tidak ditemukan.", "Error", JOptionPane.ERROR_MESSAGE);
-                    return false;
-                }
-            }
-
-            // 3. Jika aman (tidak ada duplikasi judul dengan film lain DAN tidak ada konflik studio), lanjut update film
-            try (PreparedStatement stmtUpdate = conn.prepareStatement(sqlUpdate)) {
-                stmtUpdate.setString(1, film.getJudul());
-                stmtUpdate.setInt(2, film.getDurasi());
-                stmtUpdate.setString(3, film.getGenre());
-                stmtUpdate.setString(4, film.getStatus());
-                stmtUpdate.setInt(5, film.getIdFilm());
-                int rowsAffected = stmtUpdate.executeUpdate();
-                if (rowsAffected > 0) {
-                     JOptionPane.showMessageDialog(null, "Film berhasil diperbarui!", "Sukses", JOptionPane.INFORMATION_MESSAGE);
-                    return true;
-                } else {
-                     JOptionPane.showMessageDialog(null, "Update film tidak mempengaruhi data apapun. ID mungkin tidak valid atau data sama.", "Informasi", JOptionPane.INFORMATION_MESSAGE);
-                    return false;
-                }
-            }
-
         } catch (SQLException e) {
             e.printStackTrace();
             JOptionPane.showMessageDialog(null, "Terjadi kesalahan database saat update film: " + e.getMessage(), "Error Database", JOptionPane.ERROR_MESSAGE);
