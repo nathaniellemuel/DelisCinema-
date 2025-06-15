@@ -175,7 +175,7 @@ public class JadwalController {
         JOIN film f ON j.id_film = f.id_film
         JOIN studio s ON j.id_studio = s.id_studio
         WHERE f.status = 'tayang'
-        ORDER BY s.id_studio, f.judul, j.tanggal ASC, j.jam DESC     
+        ORDER BY s.id_studio, f.judul, j.tanggal ASC, j.jam ASC     
         """;
         // Akhir dari perubahan ORDER BY
 

@@ -158,20 +158,34 @@ public class PilihKursiFrame extends JFrame {
         int idJadwal = kursiController.getJadwalId(film, studio, date, time);
         Set<String> kursiTerpesan = kursiController.getBookedSeats(idJadwal);
 
+        // Get studio capacity dynamically
+        int kapasitas = kursiController.getStudioKapasitas(studio);
+        int columns = 5;
+        int rows = (int) Math.ceil((double) kapasitas / columns);
+
+        // Generate row labels dynamically
+        String[] baris = new String[rows];
+        for (int i = 0; i < rows; i++) {
+            baris[i] = String.valueOf((char) ('A' + i));
+        }
+
         // Seat Panel
-        JPanel kursiPanel = new JPanel(new GridLayout(4, 5, 30, 30));
+        JPanel kursiPanel = new JPanel(new GridLayout(rows, columns, 30, 30));
         kursiPanel.setOpaque(false);
 
-        int kursiWidth = 80 * 5 + 30 * 4;
-        int kursiHeight = 80 * 4 + 30 * 3;
+        int kursiWidth = 80 * columns + 30 * (columns - 1);
+        int kursiHeight = 80 * rows + 30 * (rows - 1);
         kursiPanel.setBounds((width - kursiWidth) / 2, 200, kursiWidth, kursiHeight);
 
-        String[] baris = {"A", "B", "C", "D"};
-        for (int i = 0; i < 4; i++) {
-            final int row = i;
-            for (int j = 1; j <= 5; j++) {
-                String kodeKursi = baris[row] + j;
+        boolean hasPremium = kapasitas >= 10;
+        int seatNumber = 1;
+        for (int i = 0; i < rows; i++) {
+            final int rowIdx = i;
+            for (int j = 1; j <= columns; j++) {
+                if (seatNumber > kapasitas) break;
+                String kodeKursi = baris[rowIdx] + j;
                 JButton btnKursi = new JButton(kodeKursi);
+
                 btnKursi.setFocusPainted(false);
                 btnKursi.setFont(new Font("Arial", Font.BOLD, 20));
                 btnKursi.setPreferredSize(new Dimension(80, 80));
@@ -181,19 +195,20 @@ public class PilihKursiFrame extends JFrame {
                     btnKursi.setForeground(Color.BLACK);
                     btnKursi.setEnabled(false);
                 } else {
-                    if (row == 3) {
+                    // Only make last row premium if hasPremium is true
+                    boolean isPremium = hasPremium && (rowIdx == rows - 1);
+                    if (isPremium) {
                         btnKursi.setBackground(Color.BLACK);
                         btnKursi.setForeground(Color.WHITE);
                     } else {
                         btnKursi.setBackground(Color.LIGHT_GRAY);
                         btnKursi.setForeground(Color.BLACK);
                     }
-
                     btnKursi.addActionListener(e -> {
                         SoundUtil.playSound("/click-sound.wav");
                         if (kursiTerpilih.contains(kodeKursi)) {
                             kursiTerpilih.remove(kodeKursi);
-                            if (row == 3) {
+                            if (isPremium) {
                                 totalHarga -= hargaPremium;
                                 btnKursi.setBackground(Color.BLACK);
                             } else {
@@ -203,7 +218,7 @@ public class PilihKursiFrame extends JFrame {
                         } else {
                             kursiTerpilih.add(kodeKursi);
                             btnKursi.setBackground(new Color(220, 0, 0));
-                            if (row == 3) {
+                            if (isPremium) {
                                 totalHarga += hargaPremium;
                             } else {
                                 totalHarga += hargaRegular;
@@ -215,6 +230,7 @@ public class PilihKursiFrame extends JFrame {
                     });
                 }
                 kursiPanel.add(btnKursi);
+                seatNumber++;
             }
         }
         add(kursiPanel);

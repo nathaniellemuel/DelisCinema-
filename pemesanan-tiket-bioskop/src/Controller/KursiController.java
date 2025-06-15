@@ -82,27 +82,7 @@ public class KursiController {
      *
      * @return the next transaction ID
      */
-    public int getNextTransactionId() {
-        int nextId = 1; // Default starting ID if no records exist
 
-        try {
-            String query = "SELECT MAX(id_transaksi) AS max_id FROM kursi_terpesan";
-            PreparedStatement statement = connection.prepareStatement(query);
-            ResultSet resultSet = statement.executeQuery();
-
-            if (resultSet.next()) {
-                nextId = resultSet.getInt("max_id") + 1;
-            }
-
-            resultSet.close();
-            statement.close();
-        } catch (SQLException e) {
-            System.err.println("Error getting next transaction ID: " + e.getMessage());
-            e.printStackTrace();
-        }
-
-        return nextId;
-    }
 
     /**
      * Get the schedule ID for a specific film, studio, date and time
@@ -162,5 +142,22 @@ public class KursiController {
         }
 
         return -1; // Not found
+    }
+
+    public int getStudioKapasitas(String studioName) {
+        try {
+            String query = "SELECT kapasitas FROM studio WHERE nama_studio = ?";
+            PreparedStatement stmt = connection.prepareStatement(query);
+            stmt.setString(1, studioName);
+            ResultSet rs = stmt.executeQuery();
+            if (rs.next()) {
+                return rs.getInt("kapasitas");
+            }
+            rs.close();
+            stmt.close();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return 20; // fallback default
     }
 }
