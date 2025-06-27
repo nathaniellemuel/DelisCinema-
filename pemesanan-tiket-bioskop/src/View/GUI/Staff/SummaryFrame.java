@@ -2,11 +2,12 @@ package View.GUI.Staff;
 
 import javax.swing.*;
 import java.awt.*;
-import java.util.Set;
+import java.util.*;
 import java.text.NumberFormat;
-import java.util.Locale;
+
 import Utility.SoundUtil;
 import java.awt.print.*;
+import java.util.List;
 
 public class SummaryFrame extends JFrame {
     private JFrame frameSebelumnya;
@@ -114,8 +115,11 @@ public class SummaryFrame extends JFrame {
         contentPanel.add(lblKursiTitle);
 
         // Convert set to comma-separated string
+        List<String> kursiList = new ArrayList<>(kursiTerpilih);
+        Collections.sort(kursiList);
+
         StringBuilder kursiStr = new StringBuilder();
-        for (String kursi : kursiTerpilih) {
+        for (String kursi : kursiList) {
             if (kursiStr.length() > 0) {
                 kursiStr.append(", ");
             }
@@ -234,10 +238,11 @@ public class SummaryFrame extends JFrame {
 
         job.setPrintable((graphics, pageFormat, pageIndex) -> {
             if (pageIndex > 0) return Printable.NO_SUCH_PAGE;
-
             Graphics2D g2d = (Graphics2D) graphics;
             int x = (int) pageFormat.getImageableX();
             int y = (int) pageFormat.getImageableY();
+
+            int maxTextWidth = (int) pageFormat.getImageableWidth() - 20;
 
             try {
                 ImageIcon logoIcon = new ImageIcon(getClass().getResource("/LogoBlack.jpg"));
@@ -265,10 +270,33 @@ public class SummaryFrame extends JFrame {
             y += lineHeight;
             g2d.drawString("=== DELIS CINEMA ===", x, y); y += lineHeight;
             g2d.drawString("Tanggal: " + date, x, y); y += lineHeight;
-            g2d.drawString("Film   : " + film, x, y); y += lineHeight;
+
+            // Film (wrap if panjang)
+            String filmLabel = "Film   : ";
+            List<String> filmLines = wrapFilmTitle(g2d, filmLabel, film, maxTextWidth);
+            if (!filmLines.isEmpty()) {
+                g2d.drawString(filmLabel + filmLines.get(0), x, y); y += lineHeight;
+                for (int i = 1; i < filmLines.size(); i++) {
+                    g2d.drawString(filmLines.get(i), x + 5, y); y += lineHeight;
+                }
+            }
+
+
             g2d.drawString("Studio : " + studio, x, y); y += lineHeight;
             g2d.drawString("Jadwal : " + time, x, y); y += lineHeight;
-            g2d.drawString("Kursi  : " + String.join(", ", kursiTerpilih), x, y); y += lineHeight;
+
+            // Kursi (wrap if panjang)
+            String kursiLabel = "Kursi  : ";
+            String kursiStr = String.join(", ", kursiTerpilih);
+            List<String> kursiLines = wrapSeats(g2d, kursiLabel, new ArrayList<>(kursiTerpilih), maxTextWidth);
+            if (!kursiLines.isEmpty()) {
+                g2d.drawString(kursiLabel + kursiLines.get(0), x, y); y += lineHeight;
+                for (int i = 1; i < kursiLines.size(); i++) {
+                    g2d.drawString(kursiLines.get(i), x + 5, y); y += lineHeight;
+                }
+            }
+
+
             g2d.drawString("Total  : Rp. " + totalHarga, x, y); y += lineHeight;
             y += lineHeight / 2;
             g2d.drawString("===========================", x, y);
@@ -282,4 +310,69 @@ public class SummaryFrame extends JFrame {
             JOptionPane.showMessageDialog(this, "Failed to print ticket: " + ex.getMessage());
         }
     }
+
+    private List<String> wrapFilmTitle(Graphics2D g2, String label, String text, int maxWidth) {
+        List<String> lines = new ArrayList<>();
+        FontMetrics fm = g2.getFontMetrics();
+        int labelWidth = fm.stringWidth(label);
+
+        String[] words = text.split(" ");
+        if (words.length == 0) return lines;
+
+        StringBuilder firstLine = new StringBuilder(words[0]);
+        int i = 1;
+
+        // Only add the second word to the first line if it has 3 or fewer characters
+        if (words.length > 1 && words[1].length() <= 3) {
+            firstLine.append(" ").append(words[1]);
+            i = 2;
+        }
+
+        lines.add(firstLine.toString());
+
+        // Add the rest of the words to the next lines
+        StringBuilder nextLine = new StringBuilder();
+        for (; i < words.length; i++) {
+            if (nextLine.length() > 0) nextLine.append(" ");
+            nextLine.append(words[i]);
+        }
+        if (nextLine.length() > 0) lines.add(nextLine.toString());
+
+        return lines;
+    }
+
+    private List<String> wrapSeats(Graphics2D g2, String label, List<String> seats, int maxWidth) {
+        List<String> lines = new ArrayList<>();
+        FontMetrics fm = g2.getFontMetrics();
+        int labelWidth = fm.stringWidth(label);
+
+        StringBuilder firstLine = new StringBuilder();
+        int currentWidth = labelWidth;
+        int i = 0;
+
+        // Minimal 3 kursi di baris pertama jika muat
+        while (i < seats.size() && (i < 3 || fm.stringWidth(firstLine + (firstLine.length() > 0 ? ", " : "") + seats.get(i)) + currentWidth <= maxWidth)) {
+            if (firstLine.length() > 0) firstLine.append(", ");
+            firstLine.append(seats.get(i));
+            i++;
+        }
+        lines.add(firstLine.toString());
+
+        // Sisanya ke bawah
+        StringBuilder nextLine = new StringBuilder();
+        while (i < seats.size()) {
+            if (nextLine.length() > 0) nextLine.append(", ");
+            nextLine.append(seats.get(i));
+            if (fm.stringWidth(nextLine.toString()) > maxWidth - 5) {
+                lines.add(nextLine.toString().trim());
+                nextLine = new StringBuilder();
+            }
+            i++;
+        }
+        if (nextLine.length() > 0) lines.add(nextLine.toString().trim());
+
+        return lines;
+    }
+
+
 }
