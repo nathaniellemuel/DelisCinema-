@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Apr 30, 2025 at 04:37 AM
+-- Generation Time: Jun 27, 2025 at 04:08 PM
 -- Server version: 10.4.32-MariaDB
 -- PHP Version: 8.2.12
 
@@ -35,13 +35,6 @@ CREATE TABLE `film` (
   `status` enum('tayang','selesai') DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
---
--- Dumping data for table `film`
---
-
-INSERT INTO `film` (`id_film`, `judul`, `durasi`, `genre`, `status`) VALUES
-(1, 'Jumbo', 120, 'Comedy', 'tayang');
-
 -- --------------------------------------------------------
 
 --
@@ -56,13 +49,6 @@ CREATE TABLE `jadwal` (
   `jam` time DEFAULT NULL,
   `harga` int(11) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
-
---
--- Dumping data for table `jadwal`
---
-
-INSERT INTO `jadwal` (`id_jadwal`, `id_film`, `id_studio`, `tanggal`, `jam`, `harga`) VALUES
-(1, 1, 2, '2025-05-03', '07:30:00', 50000);
 
 -- --------------------------------------------------------
 
@@ -94,10 +80,10 @@ CREATE TABLE `studio` (
 --
 
 INSERT INTO `studio` (`id_studio`, `nama_studio`, `kapasitas`) VALUES
-(1, 'Studio 1', 40),
-(2, 'Studio 2', 40),
-(3, 'Studio 3', 40),
-(4, 'Studio 4', 40);
+(1, 'Studio 1', 20),
+(2, 'Studio 2', 20),
+(3, 'Studio 3', 20),
+(4, 'Studio 4', 20);
 
 -- --------------------------------------------------------
 
@@ -189,13 +175,13 @@ ALTER TABLE `user`
 -- AUTO_INCREMENT for table `film`
 --
 ALTER TABLE `film`
-  MODIFY `id_film` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
+  MODIFY `id_film` int(11) NOT NULL AUTO_INCREMENT;
 
 --
 -- AUTO_INCREMENT for table `jadwal`
 --
 ALTER TABLE `jadwal`
-  MODIFY `id_jadwal` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
+  MODIFY `id_jadwal` int(11) NOT NULL AUTO_INCREMENT;
 
 --
 -- AUTO_INCREMENT for table `kursi_terpesan`
@@ -219,7 +205,7 @@ ALTER TABLE `transaksi`
 -- AUTO_INCREMENT for table `user`
 --
 ALTER TABLE `user`
-  MODIFY `id_user` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
+  MODIFY `id_user` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
 
 --
 -- Constraints for dumped tables
