@@ -21,6 +21,7 @@ public class StaffDashboard extends JFrame {
     private JLabel selectedDateLabel, selectedFilmLabel, selectedStudioLabel, selectedTimeLabel;
     private JButton selectedTimeButton = null; // Tombol jam yang dipilih
     private JButton pilihKursi; // ubah ini jadi variabel global supaya bisa diakses
+    private Film selectedFilmObj;
     private Jadwal selectedJadwal = null; // Tambahkan variabel untuk menyimpan jadwal yang dipilih
     private List<JButton> allTimeButtons = new ArrayList<>(); // Store all time buttons for updating
     private List<Jadwal> allJadwals = new ArrayList<>(); // Store all jadwals corresponding to buttons
@@ -200,6 +201,7 @@ public class StaffDashboard extends JFrame {
         pilihKursi.setEnabled(false);
 
         pilihKursi.addActionListener(e -> {
+
             // Play sound when button is clicked
             SoundUtil.playSound("/select-click.wav");
 
@@ -215,8 +217,7 @@ public class StaffDashboard extends JFrame {
                 int harga = selectedJadwal.getHarga();
 
                 // Buat PilihKursiFrame dengan harga dari jadwal yang dipilih
-                PilihKursiFrame pilihKursi = new PilihKursiFrame(this, film, studio, date, time, harga);
-                this.setVisible(false);
+                PilihKursiFrame pilihKursi = new PilihKursiFrame(this, selectedFilmObj, studio, date, time, harga);
             }
         });
 
@@ -271,6 +272,7 @@ public class StaffDashboard extends JFrame {
             allJadwals.add(jadwal);
 
             timeButton.addActionListener(e -> {
+                selectedFilmObj = jadwal.getFilm();
                 // Check if button is disabled based on time without changing appearance
                 if (disabledButtons.contains(timeButton)) {
                     return;
