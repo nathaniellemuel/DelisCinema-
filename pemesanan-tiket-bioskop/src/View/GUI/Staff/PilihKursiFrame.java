@@ -7,6 +7,8 @@ import java.util.Set;
 import java.text.NumberFormat;
 import java.util.Locale;
 import java.sql.Connection;
+
+import Model.Film;
 import Utility.DBUtil;
 import Controller.KursiController;
 import Utility.SoundUtil;
@@ -22,18 +24,18 @@ public class PilihKursiFrame extends JFrame {
     private int totalHarga = 0;
     private NumberFormat currencyFormatter;
     private StaffDashboard dashboardFrame;
-    private String film;
+    private Film film;
     private String studio;
     private String date;
     private String time;
     private KursiController kursiController;
 
-    public PilihKursiFrame(JFrame frameSebelumnya, String film, String studio, String date, String time, int hargaFromDB) {
+    public PilihKursiFrame(JFrame frameSebelumnya, Film film, String studio, String date, String time, int hargaFromDB) {
         this(frameSebelumnya, film, studio, date, time, hargaFromDB,
                 (frameSebelumnya instanceof StaffDashboard) ? (StaffDashboard)frameSebelumnya : null);
     }
 
-    public PilihKursiFrame(JFrame frameSebelumnya, String film, String studio, String date, String time, int hargaFromDB, StaffDashboard dashboardFrame) {
+    public PilihKursiFrame(JFrame frameSebelumnya, Film film, String studio, String date, String time, int hargaFromDB, StaffDashboard dashboardFrame) {
         this.frameSebelumnya = frameSebelumnya;
         this.film = film;
         this.studio = studio;
@@ -87,7 +89,7 @@ public class PilihKursiFrame extends JFrame {
         });
         panelAtas.add(btnBack);
 
-        JLabel lblFilm = new JLabel(film.toUpperCase() + " / 102 Minutes");
+        JLabel lblFilm = new JLabel(film.getJudul().toUpperCase() + " / " + film.getDurasi() + " Minutes");
         lblFilm.setForeground(Color.WHITE);
         lblFilm.setFont(new Font("Arial", Font.BOLD, 24));
         lblFilm.setBounds(80, 10, width - 300, 30);
@@ -155,7 +157,7 @@ public class PilihKursiFrame extends JFrame {
         add(soldLabel);
 
         // Get booked seats from database
-        int idJadwal = kursiController.getJadwalId(film, studio, date, time);
+        int idJadwal = kursiController.getJadwalId(film.getJudul(), studio, date, time);
         Set<String> kursiTerpesan = kursiController.getBookedSeats(idJadwal);
 
         // Get studio capacity dynamically
@@ -267,8 +269,7 @@ public class PilihKursiFrame extends JFrame {
                 targetDashboard = (StaffDashboard) frameSebelumnya;
             }
             // Do not block here, let SummaryFrame handle invalid idJadwal
-            new SummaryFrame(this, film, studio, date, time, kursiTerpilih, totalHarga, targetDashboard, idJadwal);
-            setVisible(false);
+            new SummaryFrame(this, film.getJudul(), studio, date, time, kursiTerpilih, totalHarga, targetDashboard, idJadwal);
         });
         panelBawah.add(btnLanjut);
 
