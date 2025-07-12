@@ -67,5 +67,5 @@ This project is licensed under the [MIT License](LICENSE).
 ## 📞 Contact
 For any questions or support, please reach out:
 -   **Zan:** `neacakbar@gmail.com`
--   **Nathan** `nathanlemuel14@gmail.com`
+-   **Nathan:** `nathanlemuel14@gmail.com`
 -   **GitHub Issues:** [Report an Issue](https://github.com/fauzanakbarwijaya/DelisCinema/issues)
