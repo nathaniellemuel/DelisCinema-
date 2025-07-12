@@ -27,7 +27,7 @@ A desktop application for managing movie schedules, seat bookings, and transacti
 ## ⚙️ Installation
 1.  **Clone the repository**
     ```bash
-    git clone [https://github.com/fauzanakbarwijaya/DelisCinema.git](https://github.com/fauzanakbarwijaya/DelisCinema.git)
+    git clone https://github.com/fauzanakbarwijaya/DelisCinema.git DelisCinema
     ```
 2.  **Import the Project**
     Open and import the cloned project into your preferred Java IDE (IntelliJ IDEA is recommended).
