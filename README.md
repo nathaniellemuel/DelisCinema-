@@ -1,62 +1,70 @@
-﻿# Delis Cinema - Kelompok 1
+# 🎬 Delis Cinema Ticket Booking System
 
-## Deskripsi Proyek
-**Delis Cinema** adalah sebuah aplikasi desktop yang dirancang untuk mengelola sistem pemesanan tiket bioskop secara offline (luring). Aplikasi ini menggunakan antarmuka GUI berbasis Java Swing dan terhubung dengan database MySQL untuk memastikan proses manajemen data yang efisien dan aman.
+A desktop application for managing movie schedules, seat bookings, and transactions at Delis Cinema.
 
-Aplikasi ini memiliki dua peran utama pengguna, yaitu Admin dan Staff, dengan hak akses dan tanggung jawab yang berbeda:
+***
 
-**👤 Admin**
+## ✨ Features
+- ✅ **Film Management:** Add, update, and delete film data.
+- ✅ **Studio Management:** Manage available cinema studios.
+- ✅ **Schedule Management:** Create screening schedules with conflict prevention.
+- ✅ **Real-time Booking:** Select and book seats in real-time.
+- ✅ **Transaction History:** View transaction history and summaries.
+- ✅ **Revenue Reports:** Generate reports by month, studio, and film.
+- ✅ **Printable Tickets:** Print ticket receipts for customers.
+- ✅ **User Authentication:** Secure login system for staff and admins.
 
-- Menambahkan, mengedit, dan menghapus data film dan jadwal tayang
+***
 
-- Menentukan studio, kapasitas, serta harga tiket
+## 🛠️ Technologies Used
+- **Language:** Java (Swing for GUI)
+- **Database:** MySQL
+- **Connectivity:** JDBC
+- **IDE:** IntelliJ IDEA (Recommended)
 
-- Melihat rekap penonton berdasarkan jumlah dan pendapatan
+***
 
-**🧾 Staff**
+## ⚙️ Installation
+1.  **Clone the repository**
+    ```bash
+    git clone [https://github.com/fauzanakbarwijaya/DelisCinema.git](https://github.com/fauzanakbarwijaya/DelisCinema.git)
+    ```
+2.  **Import the Project**
+    Open and import the cloned project into your preferred Java IDE (IntelliJ IDEA is recommended).
 
-- Melihat daftar film dan jadwal tayang yang tersedia
+3.  **Configure the Database**
+    -   Create a new MySQL database.
+    -   Import the database schema from the provided `.sql` file.
+    -   Update the database connection settings in `src/Utility/DBUtil.java` to match your credentials.
 
-- Memilih studio dan menampilkan kursi yang tersedia
+4.  **Run the Application**
+    Build and run the project from your IDE.
 
-- Memilih kursi dan melakukan transaksi pemesanan tiket
+***
 
-Program ini dikembangkan menggunakan pola arsitektur MVC (Model-View-Controller) dan cocok dijalankan pada sistem operasi Windows dengan database lokal melalui XAMPP.
+## 🚀 Usage
+The system has two primary user roles with distinct functionalities:
 
----
+### Admin
+-   Logs into the system to access the main dashboard.
+-   Manages master data including **films, studios, and schedules**.
+-   Views transaction summaries and revenue reports.
 
-## Anggota Kelompok
-- **Ketua:** Iman Bagus
-- **Anggota 1:** Nathaniel Lemuel Chandra  
-- **Anggota 2:** Nicholas Romanov  
-- **Anggota 3:** Mochamad Rico Dwi Anggoro  
-- **Anggota 4:** M. Arief Ardiansyah Sirun   
-- **Anggota 5:** Fauzan Akbar Wijaya
+### Staff (Cashier)
+-   Selects a movie schedule.
+-   Chooses available seats for customers.
+-   Completes the booking transaction.
+-   Prints tickets for the customer.
 
----
+***
 
-## Cara Menjalankan Program
+## 🤝 Contributing
+Contributions are always welcome! Please fork the repository and submit a pull request with your changes.
 
-1. Download project ini dan simpan di perangkat lokal anda.
-2. Buka project menggunakan *IntelliJ IDEA*
-3. Pastikan XAMPP (MySQL) sudah dijalankan.
-4. Pastikan database deliscinema sudah tersedia sesuai struktur.
-5. Jalankan program
+## 📄 License
+This project is licensed under the [MIT License](LICENSE).
 
----
-
-## Persyaratan Instalasi
-Sebelum menjalankan program, pastikan anda sudah menginstal library berikut:
-
-1. **Java JDK 17+**
-2. **IntelliJ IDEA**
-3. **MySQL**
-4. **JDBC Connector**
-
----
-
-## Masalah atau Pertanyaan?
-Jika anda mengalami masalah atau membutuhkan bantuan lebih lanjut, silakan hubungi email berikut:  
-[neacakbar@gmail.com](mailto:neacakbar@gmail.com)
-
----
+## 📞 Contact
+For any questions or support, please reach out:
+-   **Zan:** `neacakbar@gmail.com`
+-   **GitHub Issues:** [Report an Issue](https://github.com/fauzanakbarwijaya/DelisCinema/issues)
